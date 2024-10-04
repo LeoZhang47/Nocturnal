@@ -1,6 +1,5 @@
 package com.example.nocturnal.ui.activity
 
-import ImageDisplayActivity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager

@@ -1,3 +1,6 @@
+package com.example.nocturnal.ui.activity
+
+import ImageFragment
 import android.content.Context
 import android.content.Intent
 import android.net.Uri

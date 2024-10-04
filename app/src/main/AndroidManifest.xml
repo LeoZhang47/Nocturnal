@@ -36,7 +36,6 @@
             android:name=".ui.activity.ImageDisplayActivity"
             android:exported="true"
             android:theme="@style/Theme.Nocturnal">
-
         </activity>
 
         <!-- CameraActivity -->
