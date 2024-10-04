@@ -1,5 +1,6 @@
 package com.example.nocturnal.ui.login
 
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.annotation.StringRes
@@ -18,6 +19,7 @@ import android.widget.Toast
 import com.example.nocturnal.databinding.FragmentLoginBinding
 
 import com.example.nocturnal.R
+import com.example.nocturnal.ui.activity.CameraActivity
 
 class LoginFragment : Fragment() {
 
@@ -117,6 +119,9 @@ class LoginFragment : Fragment() {
         // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
+
+        val intent = Intent(activity, CameraActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
