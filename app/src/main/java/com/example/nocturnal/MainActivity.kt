@@ -20,7 +20,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.nocturnal.ui.theme.NocturnalTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.text.font.FontWeight
-
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.getValue
+//import androidx.compose.runtime.collectAsState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,20 +40,26 @@ class MainActivity : ComponentActivity() {
 fun MyAppScaffold() {
     val navController = rememberNavController()
 
+    // Get the current route
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text("Nocturnal") },
                 actions = {
-                    // Settings IconButton to navigate to Profile screen
-                    IconButton(onClick = {
-                        navController.navigate("profile")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.settings_24px),
-                            contentDescription = "Settings"
-                        )
+                    // Conditionally show the settings button based on current route
+                    if (currentRoute != "profile") {
+                        IconButton(onClick = {
+                            navController.navigate("profile")
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.settings_24px),
+                                contentDescription = "Settings"
+                            )
+                        }
                     }
                 }
             )
