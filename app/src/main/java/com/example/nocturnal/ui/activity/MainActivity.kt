@@ -1,4 +1,4 @@
-package com.example.nocturnal
+package com.example.nocturnal.ui.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
