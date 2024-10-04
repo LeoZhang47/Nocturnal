@@ -79,6 +79,8 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.6.0")
 
+    implementation ("androidx.fragment:fragment-ktx:1.6.1")
+
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
