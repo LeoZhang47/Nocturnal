@@ -166,9 +166,7 @@ class CameraActivity : ComponentActivity() {
     }
 
     private fun showImageDisplayActivity(uri: Uri) {
-        val intent = Intent(this, ImageDisplayActivity::class.java).apply {
-            putExtra("mediaUri", uri.toString()) // Pass the URI as a String
-        }
+        val intent = ImageDisplayActivity.newIntent(this, uri)
         startActivity(intent)
     }
 }

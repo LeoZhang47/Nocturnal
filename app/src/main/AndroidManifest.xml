@@ -32,6 +32,13 @@
 <!--            </intent-filter>-->
         </activity>
 
+        <activity
+            android:name=".ui.activity.ImageDisplayActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Nocturnal">
+
+        </activity>
+
         <!-- CameraActivity -->
         <activity
             android:name=".ui.activity.CameraActivity"

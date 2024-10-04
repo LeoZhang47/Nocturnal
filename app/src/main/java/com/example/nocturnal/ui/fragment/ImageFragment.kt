@@ -1,122 +1,65 @@
-import android.app.Activity
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.os.ParcelFileDescriptor
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
-import androidx.annotation.Keep
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import android.graphics.BitmapFactory
+import android.widget.Toast
 import com.example.nocturnal.R
-import java.io.File
 import java.io.IOException
-import kotlin.math.max
 
+class ImageFragment : Fragment() {
 
-/**
- * Fragment for showing and capturing images.
- *
- * Now includes ActivityResult launchers.
- *
- * Created by adamcchampion on 2017/08/12.
- */
-@Keep
-class ImageFragment : Fragment(), View.OnClickListener {
-    private lateinit var mImageView: ImageView
-    private lateinit var mImageFilePath: String
-    private val mBitmapLiveData = MutableLiveData<Bitmap?>()
-    private var mBitmap: Bitmap? = null
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val v = inflater.inflate(R.layout.fragment_image, container, false)
-        mImageView = v.findViewById(R.id.imageView)
-        return v
-    }
+    private var mediaUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val imageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        mImageFilePath = imageDir!!.path + File.separator + "sample_image.jpg"
+        arguments?.let {
+            mediaUri = it.getParcelable(ARG_MEDIA_URI)
+        }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_image, container, false)
 
-    /**
-     * Decodes the Bitmap captured by the Camera, and returns the Bitmap. Adapted from Chapter 16
-     * in the "Big Nerd Ranch Guide to Android Development", fourth edition.
-     *
-     * @param selectedFileUri Uri corresponding to the Bitmap to decode
-     * @return The scaled Bitmap for the ImageView
-     */
-    private fun uriToBitmap(selectedFileUri: Uri): Bitmap? {
-        var image: Bitmap? = null
-        var parcelFileDescriptor: ParcelFileDescriptor? = null
+        // Find ImageView and set the image
+        val imageView: ImageView = view.findViewById(R.id.imageView)
+        mediaUri?.let {
+            loadImageFromUri(it, imageView)
+        } ?: run {
+            // Show an error if mediaUri is null
+            Toast.makeText(context, "Error loading image", Toast.LENGTH_SHORT).show()
+        }
 
+        return view
+    }
+
+    private fun loadImageFromUri(uri: Uri, imageView: ImageView) {
         try {
-            val activity: Activity = requireActivity()
-            parcelFileDescriptor = activity.contentResolver.openFileDescriptor(selectedFileUri, "r")
-            if (parcelFileDescriptor != null) {
-                val fileDescriptor = parcelFileDescriptor.fileDescriptor
-
-                // Get the bounds
-                val optionsForBounds = BitmapFactory.Options()
-                optionsForBounds.inJustDecodeBounds = true
-
-                val dstWidth = mImageView.width
-                val dstHeight = mImageView.height
-
-                BitmapFactory.decodeFileDescriptor(
-                    fileDescriptor,
-                    mImageView.drawable.bounds,
-                    optionsForBounds
-                )
-
-                val srcWidth = optionsForBounds.outWidth.toFloat()
-                val srcHeight = optionsForBounds.outHeight.toFloat()
-
-                var inSampleSize = 1
-
-                if (srcWidth > dstWidth || srcHeight > dstHeight) {
-                    val widthScale = srcWidth / dstWidth
-                    val heightScale = srcHeight / dstHeight
-
-                    val sampleScale =
-                        max(widthScale.toDouble(), heightScale.toDouble()).toFloat()
-                    inSampleSize = Math.round(sampleScale)
-                }
-
-                val actualOptions = BitmapFactory.Options()
-                actualOptions.inSampleSize = inSampleSize
-
-                image = BitmapFactory.decodeFileDescriptor(
-                    fileDescriptor,
-                    mImageView.drawable.bounds,
-                    actualOptions
-                )
-                // largeBitmap.recycle();
-                parcelFileDescriptor.close()
-            }
+            val bitmap = BitmapFactory.decodeStream(requireContext().contentResolver.openInputStream(uri))
+            imageView.setImageBitmap(bitmap)
         } catch (e: IOException) {
             e.printStackTrace()
+            Toast.makeText(context, "Error loading image from URI", Toast.LENGTH_SHORT).show()
         }
-        return image
     }
 
-    override fun onClick(p0: View?) {
-        TODO("Not yet implemented")
-    }
+    companion object {
+        private const val ARG_MEDIA_URI = "mediaUri"
 
+        // Use this method to create a new instance of ImageFragment
+        @JvmStatic
+        fun newInstance(uri: Uri) =
+            ImageFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_MEDIA_URI, uri)
+                }
+            }
+    }
 }
