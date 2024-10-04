@@ -83,6 +83,21 @@ class CameraActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d("CameraActivity", "onStart called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("CameraActivity", "onResume called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("CameraActivity", "onPause called")
+    }
+
     private fun showCaptureOptions() {
         // This function should show options for capturing either an image or a video
         // You can use an AlertDialog or any other UI element to ask the user
