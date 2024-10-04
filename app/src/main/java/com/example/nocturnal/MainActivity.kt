@@ -15,7 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.platform.LocalContext // Import this
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.nocturnal.ui.theme.NocturnalTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
@@ -33,17 +37,17 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyAppScaffold() {
+    val navController = rememberNavController()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text("Nocturnal") },
                 actions = {
-                    // Settings IconButton
-                    val context = LocalContext.current
+                    // Settings IconButton to navigate to Profile screen
                     IconButton(onClick = {
-                        // Handle settings button click
-                        Toast.makeText(context, "Settings clicked", Toast.LENGTH_SHORT).show()
+                        navController.navigate("profile") // Correctly reference navController here
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.settings_24px),
@@ -54,10 +58,18 @@ fun MyAppScaffold() {
             )
         }
     ) { innerPadding ->
-        Greeting(
-            name = "Android",
+        NavHost(
+            navController = navController,
+            startDestination = "home",
             modifier = Modifier.padding(innerPadding)
-        )
+        ) {
+            composable("home") {
+                Greeting("Android")
+            }
+            composable("profile") {
+                ProfileScreen()
+            }
+        }
     }
 }
 
@@ -67,6 +79,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
+}
+
+@Composable
+fun ProfileScreen() {
+    Text(text = "Profile")
 }
 
 @Preview(showBackground = true)
