@@ -15,13 +15,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.example.nocturnal.R // Make sure this import is there for the drawable
 import com.example.nocturnal.ui.theme.NocturnalTheme
 import java.io.File
 import java.io.IOException
@@ -69,10 +69,28 @@ class CameraActivity : ComponentActivity() {
                 }
             }
         }
-
+        @OptIn(ExperimentalMaterial3Api::class)
         setContent {
             NocturnalTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Camera Activity") },
+                            actions = {
+                                IconButton(onClick = {
+                                    // Handle settings button click (e.g., show settings screen)
+                                    Log.d("CameraActivity", "Settings button clicked")
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.settings_24px), // Ensure your settings icon is available
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     GreetingWithCamera(
                         modifier = Modifier.padding(innerPadding),
                         onCapturePhoto = { checkCameraPermission("image") },
