@@ -1,5 +1,6 @@
 package com.example.nocturnal.ui.activity
 
+import androidx.compose.material3.*
 import ImageDisplayActivity
 import android.Manifest
 import android.content.Intent
@@ -15,14 +16,21 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.nocturnal.R // Make sure this import is there for the drawable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.nocturnal.R
 import com.example.nocturnal.ui.theme.NocturnalTheme
+import com.example.nocturnal.ProfileScreen
 import java.io.File
 import java.io.IOException
 
@@ -37,7 +45,6 @@ class CameraActivity : ComponentActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             mediaUri?.let { uri ->
-                // Start ImageDisplayActivity to show the captured photo
                 showImageDisplayActivity(uri)
             }
         }
@@ -47,7 +54,6 @@ class CameraActivity : ComponentActivity() {
     private val takeVideoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             mediaUri?.let { uri ->
-                // Start ImageDisplayActivity to show the captured video
                 showImageDisplayActivity(uri)
             }
         }
@@ -61,7 +67,6 @@ class CameraActivity : ComponentActivity() {
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[Manifest.permission.CAMERA] == true -> {
-                    // Permission granted, show options for capturing image or video
                     showCaptureOptions()
                 }
                 else -> {
@@ -69,20 +74,21 @@ class CameraActivity : ComponentActivity() {
                 }
             }
         }
-        @OptIn(ExperimentalMaterial3Api::class)
+
         setContent {
             NocturnalTheme {
+                val navController = rememberNavController()
+                @OptIn(ExperimentalMaterial3Api::class)
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = { Text("Camera Activity") },
                             actions = {
                                 IconButton(onClick = {
-                                    // Handle settings button click (e.g., show settings screen)
-                                    Log.d("CameraActivity", "Settings button clicked")
+                                    navController.navigate("profile")
                                 }) {
                                     Icon(
-                                        painter = painterResource(id = R.drawable.settings_24px), // Ensure your settings icon is available
+                                        painter = painterResource(id = R.drawable.settings_24px),
                                         contentDescription = "Settings"
                                     )
                                 }
@@ -91,7 +97,8 @@ class CameraActivity : ComponentActivity() {
                     },
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    GreetingWithCamera(
+                    NavigationHost(
+                        navController = navController,
                         modifier = Modifier.padding(innerPadding),
                         onCapturePhoto = { checkCameraPermission("image") },
                         onCaptureVideo = { checkCameraPermission("video") }
@@ -101,38 +108,20 @@ class CameraActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("CameraActivity", "onStart called")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("CameraActivity", "onResume called")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("CameraActivity", "onPause called")
-    }
-
     private fun showCaptureOptions() {
-        // This function should show options for capturing either an image or a video
-        // You can use an AlertDialog or any other UI element to ask the user
+        // Show options for capturing either an image or a video
     }
 
     private fun checkCameraPermission(mediaType: String) {
         when {
-            // Check if the camera permission is granted
             ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 if (mediaType == "image") {
-                    capturePhoto() // Permission granted for image capture
+                    capturePhoto()
                 } else if (mediaType == "video") {
-                    captureVideo() // Permission granted for video capture
+                    captureVideo()
                 }
             }
             else -> {
-                // Request camera permission
                 permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
             }
         }
@@ -140,7 +129,7 @@ class CameraActivity : ComponentActivity() {
 
     private fun capturePhoto() {
         val photoFile = try {
-            createImageFile() // Ensure file creation doesn't fail
+            createImageFile()
         } catch (ex: IOException) {
             ex.printStackTrace()
             null
@@ -156,15 +145,12 @@ class CameraActivity : ComponentActivity() {
 
         mediaUri?.let { uri ->
             takePictureLauncher.launch(uri)
-        } ?: run {
-            // Handle the error where URI couldn't be created
-            // Log error or display a message to the user
         }
     }
 
     private fun captureVideo() {
         val videoFile = try {
-            createVideoFile() // Ensure file creation doesn't fail
+            createVideoFile()
         } catch (ex: IOException) {
             ex.printStackTrace()
             null
@@ -179,14 +165,10 @@ class CameraActivity : ComponentActivity() {
         }
 
         mediaUri?.let { uri ->
-            // Create an Intent to capture video
             val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE).apply {
-                putExtra(MediaStore.EXTRA_OUTPUT, uri) // Save video to the provided URI
+                putExtra(MediaStore.EXTRA_OUTPUT, uri)
             }
-            takeVideoLauncher.launch(intent) // Launch the video capture intent
-        } ?: run {
-            // Handle the error where URI couldn't be created
-            // Log error or display a message to the user
+            takeVideoLauncher.launch(intent)
         }
     }
 
@@ -202,14 +184,38 @@ class CameraActivity : ComponentActivity() {
 
     private fun showImageDisplayActivity(uri: Uri) {
         val intent = Intent(this, ImageDisplayActivity::class.java).apply {
-            putExtra("mediaUri", uri.toString()) // Pass the URI as a String
+            putExtra("mediaUri", uri.toString())
         }
         startActivity(intent)
     }
 }
 
 @Composable
-fun GreetingWithCamera(modifier: Modifier = Modifier, onCapturePhoto: () -> Unit, onCaptureVideo: () -> Unit) {
+fun NavigationHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    onCapturePhoto: () -> Unit,
+    onCaptureVideo: () -> Unit
+) {
+    NavHost(navController = navController, startDestination = "camera", modifier = modifier) {
+        composable("camera") {
+            GreetingWithCamera(
+                onCapturePhoto = onCapturePhoto,
+                onCaptureVideo = onCaptureVideo
+            )
+        }
+        composable("profile") {
+            ProfileScreen(navController = navController)
+        }
+    }
+}
+
+@Composable
+fun GreetingWithCamera(
+    modifier: Modifier = Modifier,
+    onCapturePhoto: () -> Unit,
+    onCaptureVideo: () -> Unit
+) {
     Column(modifier = modifier.fillMaxSize()) {
         Button(onClick = onCapturePhoto) {
             Text(text = "Take a Photo")
