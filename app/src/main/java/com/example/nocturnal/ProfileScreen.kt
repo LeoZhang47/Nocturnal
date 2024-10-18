@@ -3,24 +3,17 @@ package com.example.nocturnal
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.flow.MutableStateFlow
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-
-
-
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +25,12 @@ fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewMo
 
     // Collect the StateFlow safely
     val username by usernameFlow.collectAsState()
+
+    // Track dialog visibility and the entered username
+    var showDialog by remember { mutableStateOf(false) }
+    var newUsername by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,7 +56,7 @@ fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewMo
         ) {
             // "Profile" Heading
             Text(
-                text = "${username}",
+                text = username,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
             )
@@ -71,7 +70,7 @@ fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewMo
 
             // Change Username Button
             Button(
-                onClick = { /* Handle Change Username */ },
+                onClick = { showDialog = true }, // Show the dialog
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             ) {
@@ -106,6 +105,56 @@ fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewMo
             ) {
                 Text(text = "Log Out")
             }
+        }
+
+        // Dialog for entering new username
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(text = "Change Username") },
+                text = {
+                    Column {
+                        TextField(
+                            value = newUsername,
+                            onValueChange = { newUsername = it },
+                            label = { Text("Enter new username") },
+                            singleLine = true
+                        )
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        currentUser?.uid?.let { uid ->
+                            userViewModel.changeUsername(
+                                newUsername,
+                                onSuccess = {
+                                    // Refetch username after successfully changing it
+                                    userViewModel.getUsername(uid)
+                                    showDialog = false // Close dialog on success
+                                    errorMessage = ""  // Clear any previous error message
+                                },
+                                onFailure = { error ->
+                                    errorMessage = error // Show error message if any
+                                }
+                            )
+                        }
+                    }) {
+                        Text("Submit")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

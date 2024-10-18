@@ -25,6 +25,12 @@ class UserViewModel : ViewModel() {
             }
     }
 
+    // Function to sign out the current user
+    fun signOut() {
+        auth.signOut()
+        // You may want to clear any locally stored user data or update UI state as needed
+    }
+
     fun registerUser(email: String, password: String, callback: (Boolean, String?, String?) -> Unit) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -69,6 +75,24 @@ class UserViewModel : ViewModel() {
         )
 
         return usernameFlow
+    }
+
+    // Method to change the username
+    fun changeUsername(newUsername: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            repository.storeUsername(uid, newUsername,
+                onSuccess = {
+                    onSuccess()  // Username updated successfully
+                },
+                onFailure = { exception ->
+                    onFailure(exception.message ?: "Failed to update username")
+                }
+            )
+        } else {
+            onFailure("No user logged in")
+        }
     }
 }
 
