@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.nocturnal.R
 import com.google.firebase.Firebase
@@ -35,7 +36,6 @@ class ImagePreviewFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         postViewModel = ViewModelProvider(this)[PostViewModel::class.java] // Initialize ViewModel
-        val storage = FirebaseStorage.getInstance()
     }
 
     override fun onCreateView(
@@ -63,13 +63,9 @@ class ImagePreviewFragment : Fragment() {
         imageUri?.let {
             val mediaUri = Uri.parse(it)
             val timestamp = Date() // Get current timestamp
-            postViewModel.storePost(mediaUri.toString(), timestamp) { isSuccess ->
-                if (isSuccess) {
-                    Toast.makeText(context, "Post successful!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Post failed", Toast.LENGTH_SHORT).show()
-                }
-            } // Store media as String
+            postViewModel.storePost(mediaUri.toString(), timestamp)
+
+
         }
     }
 }

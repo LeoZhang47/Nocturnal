@@ -1,13 +1,13 @@
 import android.net.Uri
-import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.nocturnal.data.FirestoreRepository
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
 class PostViewModel : ViewModel() {
     private val repository = FirestoreRepository()
-
-    fun storePost(mediaUri: String, timestamp: Date, callback: (Boolean) -> Unit) {
+    fun storePost(mediaUri: String, timestamp: Date) {
         // Create a reference to Firebase Storage
         val storageRef = FirebaseStorage.getInstance().reference
 
@@ -22,15 +22,11 @@ class PostViewModel : ViewModel() {
                 // File uploaded successfully, now store the media link in Firestore
                 fileRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                     repository.storePost(downloadUrl.toString(), timestamp)
-                    callback(true)
                 }.addOnFailureListener {
-                    // Handle the error when fetching download URL
-                    callback(false)
                 }
             }
             .addOnFailureListener {
                 // Handle any errors during upload
-                callback(false)
             }
     }
 }
