@@ -15,4 +15,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/record_video" />
+    <Button
+        android:id="@+id/btn_view_bars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Bars"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"/>
+
 </LinearLayout>
