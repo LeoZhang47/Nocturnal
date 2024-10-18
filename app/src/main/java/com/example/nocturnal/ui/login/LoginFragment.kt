@@ -10,6 +10,8 @@ import com.example.nocturnal.databinding.FragmentLoginBinding
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
+import android.widget.Toast
+
 
 class LoginFragment : Fragment() {
 
@@ -35,15 +37,18 @@ class LoginFragment : Fragment() {
 
 
         loginButton.setOnClickListener {
-            val newUser = mapOf(
-                "username" to usernameEditText.text.toString(),
-                "password" to passwordEditText.text.toString()
-            )
-            userViewModel.addUser(newUser)
+            val username = usernameEditText.text.toString()
+            val password = passwordEditText.text.toString()
 
-            // Navigate to CameraActivity
-            val intent = Intent(activity, CameraActivity::class.java)
-            startActivity(intent)
+            userViewModel.validateCredentials(username, password) { isValid ->
+                if (isValid) {
+                    // Navigate to CameraActivity
+                    val intent = Intent(activity, CameraActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
