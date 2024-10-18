@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.login.LoginFragment
+import com.example.nocturnal.ui.signup.SignUpFragment
 import com.example.nocturnal.ui.theme.NocturnalTheme
 
 class MainActivity : AppCompatActivity() {
@@ -26,24 +27,13 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Add the LoginFragment to the fragment container if it's not already added
+        // Add the SignUp to the fragment container if it's not already added
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (currentFragment == null) {
-            val fragment = LoginFragment()
+            val fragment = SignUpFragment()
             supportFragmentManager.beginTransaction()
                 .add(R.id.fragment_container, fragment)
                 .commit()
         }
-
-        // Use Jetpack Compose after the login flow
-        // Uncomment the below block if you need to introduce Compose after login
-        /*
-        setContent {
-            NocturnalTheme {
-                // Add Compose content, like a settings screen or app content
-                MyComposeContent()
-            }
-        }
-        */
     }
 }

@@ -37,16 +37,16 @@ class LoginFragment : Fragment() {
 
 
         loginButton.setOnClickListener {
-            val username = usernameEditText.text.toString()
+            val email = usernameEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            userViewModel.validateCredentials(username, password) { isValid ->
-                if (isValid) {
+            userViewModel.loginUser(email, password) { isSuccess, errorMessage ->
+                if (isSuccess) {
                     // Navigate to CameraActivity
                     val intent = Intent(activity, CameraActivity::class.java)
                     startActivity(intent)
                 } else {
-                    Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Login failed: $errorMessage", Toast.LENGTH_LONG).show()
                 }
             }
         }
