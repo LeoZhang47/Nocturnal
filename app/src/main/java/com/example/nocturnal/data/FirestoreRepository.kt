@@ -64,24 +64,33 @@ class FirestoreRepository {
     }
 
     fun getUserPosts(uid: String, onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
-        val userImagesRef = storageRef.child("images/${uid}/")
+        val userImagesRef = storageRef.child("images/$uid/")
 
+        // Check if the folder exists by listing its contents
         userImagesRef.listAll()
             .addOnSuccessListener { listResult ->
                 val imageUrls = mutableListOf<String>()
-                val tasks = listResult.items.map { storageReference ->
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        imageUrls.add(uri.toString())
-                    }
-                }
 
-                // After all URLs are retrieved, call the success callback
-                tasks.lastOrNull()?.addOnCompleteListener {
-                    onSuccess(imageUrls)
+                // If the folder exists, retrieve image URLs
+                if (listResult.items.isNotEmpty()) {
+                    val tasks = listResult.items.map { storageReference ->
+                        storageReference.downloadUrl.addOnSuccessListener { uri ->
+                            imageUrls.add(uri.toString())
+                        }
+                    }
+
+                    // After all URLs are retrieved, call the success callback
+                    tasks.lastOrNull()?.addOnCompleteListener {
+                        onSuccess(imageUrls)
+                    }
+                } else {
+                    // No images found, return an empty list
+                    onSuccess(imageUrls) // This ensures that the UI renders correctly
                 }
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)
             }
     }
+
 }

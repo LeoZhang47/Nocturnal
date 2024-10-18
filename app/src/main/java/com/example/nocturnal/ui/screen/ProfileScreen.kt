@@ -67,7 +67,7 @@ fun ProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // Allocate space for this section
+                    .padding(bottom = 16.dp), // Add padding below the buttons
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
             ) {
@@ -118,34 +118,46 @@ fun ProfileScreen(
                         userViewModel.signOut()
                         profileActivity.logOutAndNavigateToLogin()
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                        // .padding(top = 40.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(text = "Log Out")
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Add space between buttons and image list
+            // Check if there are images to display
+            if (imageUrls.isNotEmpty()) {
+                Text(
+                    text = "Your Images",
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 10.dp)
+                )
 
-            // Image list section
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f), // Make the image list fill the remaining space
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(imageUrls) { imageUrl ->
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUrl),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                // Display user images
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(imageUrls) { imageUrl ->
+                        Image(
+                            painter = rememberAsyncImagePainter(imageUrl),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
+            } else {
+                // Show a placeholder or message if there are no images
+                Text(
+                    text = "No images available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
