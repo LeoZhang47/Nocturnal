@@ -8,12 +8,8 @@ import android.os.ParcelFileDescriptor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 import androidx.annotation.Keep
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.example.nocturnal.R
@@ -30,7 +26,7 @@ import kotlin.math.max
  * Created by adamcchampion on 2017/08/12.
  */
 @Keep
-class ImageFragment : Fragment(), View.OnClickListener {
+class ImagePreviewFragment : Fragment(), View.OnClickListener {
     private lateinit var mImageView: ImageView
     private lateinit var mImageFilePath: String
     private val mBitmapLiveData = MutableLiveData<Bitmap?>()
@@ -42,7 +38,7 @@ class ImageFragment : Fragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.fragment_image, container, false)
+        val v = inflater.inflate(R.layout.fragment_image_preview, container, false)
         mImageView = v.findViewById(R.id.imageView)
         return v
     }

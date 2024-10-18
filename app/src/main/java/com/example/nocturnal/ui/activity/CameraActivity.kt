@@ -1,6 +1,5 @@
 package com.example.nocturnal.ui.activity
 
-import androidx.compose.material3.*
 import ImageDisplayActivity
 import android.Manifest
 import android.content.Intent
@@ -9,32 +8,17 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.nocturnal.R
-import com.example.nocturnal.ui.theme.NocturnalTheme
-import com.example.nocturnal.ProfileScreen
 import java.io.File
 import java.io.IOException
 
-class CameraActivity : ComponentActivity() {
+class CameraActivity : AppCompatActivity() {
 
     private var mediaUri: Uri? = null
 
@@ -63,6 +47,9 @@ class CameraActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d("CameraActivity", "onCreate called")
 
+        // Set the content view to the XML layout
+        setContentView(R.layout.activity_camera)
+
         // Initialize the permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
@@ -75,36 +62,13 @@ class CameraActivity : ComponentActivity() {
             }
         }
 
-        setContent {
-            NocturnalTheme {
-                val navController = rememberNavController()
-                @OptIn(ExperimentalMaterial3Api::class)
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Camera Activity") },
-                            actions = {
-                                IconButton(onClick = {
-                                    navController.navigate("profile")
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.settings_24px),
-                                        contentDescription = "Settings"
-                                    )
-                                }
-                            }
-                        )
-                    },
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    NavigationHost(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding),
-                        onCapturePhoto = { checkCameraPermission("image") },
-                        onCaptureVideo = { checkCameraPermission("video") }
-                    )
-                }
-            }
+        // Set click listeners for buttons
+        findViewById<View>(R.id.picture_button).setOnClickListener {
+            checkCameraPermission("image")
+        }
+
+        findViewById<View>(R.id.video_button).setOnClickListener {
+            checkCameraPermission("video")
         }
     }
 
@@ -187,41 +151,5 @@ class CameraActivity : ComponentActivity() {
             putExtra("mediaUri", uri.toString())
         }
         startActivity(intent)
-    }
-}
-
-@Composable
-fun NavigationHost(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-    onCapturePhoto: () -> Unit,
-    onCaptureVideo: () -> Unit
-) {
-    NavHost(navController = navController, startDestination = "camera", modifier = modifier) {
-        composable("camera") {
-            GreetingWithCamera(
-                onCapturePhoto = onCapturePhoto,
-                onCaptureVideo = onCaptureVideo
-            )
-        }
-        composable("profile") {
-            ProfileScreen(navController = navController)
-        }
-    }
-}
-
-@Composable
-fun GreetingWithCamera(
-    modifier: Modifier = Modifier,
-    onCapturePhoto: () -> Unit,
-    onCaptureVideo: () -> Unit
-) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Button(onClick = onCapturePhoto) {
-            Text(text = "Take a Photo")
-        }
-        Button(onClick = onCaptureVideo) {
-            Text(text = "Record a Video")
-        }
     }
 }

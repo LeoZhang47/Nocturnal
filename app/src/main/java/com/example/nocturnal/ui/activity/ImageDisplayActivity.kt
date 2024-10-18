@@ -11,6 +11,6 @@ import com.example.nocturnal.ui.SingleFragmentActivity
 @Keep
 class ImageDisplayActivity : SingleFragmentActivity() {
     override fun createFragment(): Fragment {
-        return ImageFragment()
+        return ImagePreviewFragment()
     }
 }
