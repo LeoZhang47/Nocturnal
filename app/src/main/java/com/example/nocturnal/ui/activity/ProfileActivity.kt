@@ -1,27 +1,41 @@
 package com.example.nocturnal.ui.activity
 
+import ProfileScreen
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
-import com.example.nocturnal.ProfileScreen
 import android.content.Intent
+import com.example.nocturnal.data.FirestoreRepository
+import com.google.firebase.auth.FirebaseAuth
 
 
 class ProfileActivity : AppCompatActivity() {
+    private val repository = FirestoreRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                // Pass 'this' as the ProfileActivity instance
-                ProfileScreen(
-                    onBackClick = { finish() },
-                    fragmentManager = supportFragmentManager, // Pass FragmentManager if needed
-                    profileActivity = this // Pass the current activity instance
-                )
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val uid = currentUser?.uid ?: return
+
+        repository.getUserPosts(uid,
+            onSuccess = { imageUrls ->
+                setContent {
+                    MaterialTheme {
+                        ProfileScreen(
+                            imageUrls = imageUrls, // Pass image URLs to ProfileScreen
+                            onBackClick = { finish() },
+                            fragmentManager = supportFragmentManager,
+                            profileActivity = this
+                        )
+                    }
+                }
+            },
+            onFailure = {
+                // Handle failure to fetch images
             }
-        }
+        )
     }
 
     // Method to log out and navigate to LoginFragment

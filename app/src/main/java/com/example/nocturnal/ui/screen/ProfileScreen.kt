@@ -1,31 +1,33 @@
-package com.example.nocturnal
-
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nocturnal.ui.fragment.LoginFragment
+import coil.compose.rememberAsyncImagePainter
+import com.example.nocturnal.R
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import androidx.compose.runtime.collectAsState
 import com.example.nocturnal.ui.activity.ProfileActivity
-
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit,
     fragmentManager: FragmentManager,
-    userViewModel: UserViewModel = viewModel(),
-    profileActivity: ProfileActivity // Pass ProfileActivity to trigger logout
+    profileActivity: ProfileActivity,
+    imageUrls: List<String>, // Add image URLs parameter
+    userViewModel: UserViewModel = viewModel()
 ) {
     val currentUser = userViewModel.getCurrentUser()
 
@@ -59,63 +61,91 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
+                .padding(16.dp)
         ) {
-            // "Profile" Heading
-            Text(
-                text = username,
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.Center
-            )
-
-            // Display user score
-            Text(
-                text = "Score: XX",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
-            )
-
-            // Change Username Button
-            Button(
-                onClick = { showDialog = true }, // Show the dialog
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = "Change Username")
-            }
-
-            // Change Profile Picture Button
-            Button(
-                onClick = { /* Handle Change Profile Picture */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = "Change PFP")
-            }
-
-            // Change Password Button
-            Button(
-                onClick = { /* Handle Change Password */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = "Change Password")
-            }
-
-            // Log Out Button
-            Button(
-                onClick = {
-                    userViewModel.signOut() // Call the ViewModel's log out function
-                    profileActivity.logOutAndNavigateToLogin() // Log out and navigate back to LoginFragment
-                },
+            // Profile header section with buttons
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 40.dp),
-                shape = RoundedCornerShape(12.dp)
+                    .weight(1f), // Allocate space for this section
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
             ) {
-                Text(text = "Log Out")
+                // "Profile" Heading
+                Text(
+                    text = username,
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    textAlign = TextAlign.Center
+                )
+
+                // Display user score (Placeholder)
+                Text(
+                    text = "Score: XX",
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center
+                )
+
+                // Change Username Button
+                Button(
+                    onClick = { showDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "Change Username")
+                }
+
+                // Change Profile Picture Button
+                Button(
+                    onClick = { /* Handle Change Profile Picture */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "Change PFP")
+                }
+
+                // Change Password Button
+                Button(
+                    onClick = { /* Handle Change Password */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "Change Password")
+                }
+
+                // Log Out Button
+                Button(
+                    onClick = {
+                        userViewModel.signOut()
+                        profileActivity.logOutAndNavigateToLogin()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                        // .padding(top = 40.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Log Out")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp)) // Add space between buttons and image list
+
+            // Image list section
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f), // Make the image list fill the remaining space
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(imageUrls) { imageUrl ->
+                    Image(
+                        painter = rememberAsyncImagePainter(imageUrl),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
 
@@ -147,13 +177,12 @@ fun ProfileScreen(
                             userViewModel.changeUsername(
                                 newUsername,
                                 onSuccess = {
-                                    // Refetch username after successfully changing it
                                     userViewModel.getUsername(uid)
-                                    showDialog = false // Close dialog on success
-                                    errorMessage = ""  // Clear any previous error message
+                                    showDialog = false
+                                    errorMessage = ""
                                 },
                                 onFailure = { error ->
-                                    errorMessage = error // Show error message if any
+                                    errorMessage = error
                                 }
                             )
                         }

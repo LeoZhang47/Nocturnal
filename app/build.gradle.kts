@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1") // Check for the latest version
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
