@@ -91,6 +91,16 @@ dependencies {
 
     implementation ("androidx.fragment:fragment-ktx:1.6.1")
 
+    implementation ("com.google.firebase:firebase-firestore")
+
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+
+
+
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
