@@ -18,11 +18,15 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.example.nocturnal.databinding.FragmentLoginBinding
+import com.example.nocturnal.data.model.viewmodel.UserViewModel;
+import androidx.fragment.app.viewModels // For Fragment
 
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.activity.CameraActivity
 
 class LoginFragment : Fragment() {
+
+    private val userViewModel: UserViewModel by viewModels()
 
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
@@ -114,6 +118,8 @@ class LoginFragment : Fragment() {
                 usernameEditText.text.toString(),
                 passwordEditText.text.toString()
             )
+            val newUser = mapOf("username" to usernameEditText.text.toString(), "password" to passwordEditText.text.toString())
+            userViewModel.addUser(newUser)
         }
     }
 
