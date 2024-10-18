@@ -1,4 +1,4 @@
-package com.example.nocturnal.ui.login
+package com.example.nocturnal.ui.fragment
 
 import android.content.Intent
 import androidx.lifecycle.Observer
