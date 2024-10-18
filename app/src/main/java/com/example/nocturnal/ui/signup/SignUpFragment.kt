@@ -59,12 +59,12 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
             }
         }
-        binding.switchToLogin.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, LoginFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+//        binding.switchToLogin.setOnClickListener {
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container, LoginFragment())
+//                .addToBackStack(null)
+//                .commit()
+//        }
 
     }
 
