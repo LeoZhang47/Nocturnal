@@ -19,6 +19,7 @@ import com.example.nocturnal.ui.fragment.MediaSelectionFragment
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
 
 class CameraActivity : AppCompatActivity() {
@@ -70,11 +71,13 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun createImageFile(): File {
-        return File(applicationContext.filesDir, "IMG_${Date()}.JPG")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        return File(applicationContext.filesDir, "IMG_${timeStamp}.JPG")
     }
 
     private fun createVideoFile(): File {
-        return File(applicationContext.filesDir, "VID_${Date()}.MP4")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        return File(applicationContext.filesDir, "VID_${timeStamp}.MP4")
     }
 
     private fun capturePhoto() {
