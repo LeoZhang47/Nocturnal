@@ -5,6 +5,10 @@ import com.example.nocturnal.data.FirestoreRepository
 import androidx.lifecycle.liveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
 
 class UserViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -43,6 +47,28 @@ class UserViewModel : ViewModel() {
                 // Handle error
             }
         )
+    }
+
+    // Expose the current FirebaseAuth instance
+    fun getCurrentUser(): FirebaseUser? {
+        return auth.currentUser
+    }
+
+    // Fetch the username using the FirestoreRepository
+    fun getUsername(uid: String): StateFlow<String> {
+        val usernameFlow = MutableStateFlow("Loading...")  // Initial state as loading
+
+        repository.getUsername(
+            uid = uid,
+            onSuccess = { username ->
+                usernameFlow.value = username
+            },
+            onFailure = { exception ->
+                usernameFlow.value = "Error: ${exception.message}"
+            }
+        )
+
+        return usernameFlow
     }
 }
 

@@ -12,10 +12,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onBackClick: () -> Unit) {
+fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewModel()) {
+    val currentUser = userViewModel.getCurrentUser()
+
+    // If currentUser is null, handle it with a fallback (e.g., "Guest")
+    val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow("Guest")
+
+    // Collect the StateFlow safely
+    val username by usernameFlow.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -41,7 +57,7 @@ fun ProfileScreen(onBackClick: () -> Unit) {
         ) {
             // "Profile" Heading
             Text(
-                text = "Profile",
+                text = "${username}",
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
             )

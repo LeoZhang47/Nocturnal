@@ -106,7 +106,9 @@ dependencies {
 
     implementation ("com.google.firebase:firebase-auth")
 
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
+    implementation ("androidx.compose.runtime:runtime:1.0.5")
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
