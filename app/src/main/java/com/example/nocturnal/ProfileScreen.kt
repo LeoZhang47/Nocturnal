@@ -10,14 +10,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nocturnal.ui.fragment.LoginFragment
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.runtime.collectAsState
-import com.example.nocturnal.data.model.viewmodel.UserViewModel
+import com.example.nocturnal.ui.activity.ProfileActivity
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewModel()) {
+fun ProfileScreen(
+    onBackClick: () -> Unit,
+    fragmentManager: FragmentManager,
+    userViewModel: UserViewModel = viewModel(),
+    profileActivity: ProfileActivity // Pass ProfileActivity to trigger logout
+) {
     val currentUser = userViewModel.getCurrentUser()
 
     // If currentUser is null, handle it with a fallback (e.g., "Guest")
@@ -97,7 +106,10 @@ fun ProfileScreen(onBackClick: () -> Unit, userViewModel: UserViewModel = viewMo
 
             // Log Out Button
             Button(
-                onClick = { /* Handle Log Out */ },
+                onClick = {
+                    userViewModel.signOut() // Call the ViewModel's log out function
+                    profileActivity.logOutAndNavigateToLogin() // Log out and navigate back to LoginFragment
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 40.dp),
