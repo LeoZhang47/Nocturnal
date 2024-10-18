@@ -5,23 +5,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
 
-    //fun getUsers() = db.collection("users").get()
-    fun addUser(user: Map<String, Any>) = db.collection("users").add(user)
-
-    fun validateUserCredentials(username: String, password: String, callback: (Boolean) -> Unit) {
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .whereEqualTo("password", password)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    callback(true)  // User exists
-                } else {
-                    callback(false) // User does not exist
-                }
-            }
-            .addOnFailureListener {
-                callback(false) // Error or failure
-            }
+    fun storeUsername(uid: String, username: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val user = hashMapOf("username" to username)
+        db.collection("users").document(uid)
+            .set(user)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { exception -> onFailure(exception) }
     }
 }

@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import com.example.nocturnal.data.FirestoreRepository
 import androidx.lifecycle.liveData
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class UserViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val repository = FirestoreRepository()
 
     fun loginUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
@@ -19,15 +21,28 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    fun registerUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
-        auth.createUserWithEmailAndPassword(email, password)
+    fun registerUser(email: String, password: String, callback: (Boolean, String?, String?) -> Unit) {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    callback(true, null)  // Registration successful
+                    val uid = task.result?.user?.uid
+                    callback(true, null, uid)
                 } else {
-                    callback(false, task.exception?.message)  // Registration failed
+                    callback(false, task.exception?.message, null)
                 }
             }
+    }
+
+
+    fun storeUsername(uid: String, username: String) {
+        repository.storeUsername(uid, username,
+            onSuccess = {
+                // Success logic
+            },
+            onFailure = { exception ->
+                // Handle error
+            }
+        )
     }
 }
 

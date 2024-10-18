@@ -42,13 +42,9 @@ class SignUpFragment : Fragment() {
             val confirmPassword = confirmPasswordEditText.text.toString()
 
             if (password == confirmPassword) {
-                val newUser = mapOf(
-                    "email" to email,
-                    "username" to username,
-                    "password" to password
-                )
-                userViewModel.registerUser(email, password) { isSuccess, errorMessage ->
-                    if (isSuccess) {
+                userViewModel.registerUser(email, password) { isSuccess, errorMessage, uid ->
+                    if (isSuccess && uid != null) {
+                        userViewModel.storeUsername(uid, username)
                         Toast.makeText(context, "Registration successful", Toast.LENGTH_LONG).show()
                         // Navigate to CameraActivity
                         val intent = Intent(activity, CameraActivity::class.java)
@@ -62,7 +58,6 @@ class SignUpFragment : Fragment() {
             }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
