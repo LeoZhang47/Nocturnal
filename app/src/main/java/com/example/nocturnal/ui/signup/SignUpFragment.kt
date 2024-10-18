@@ -11,6 +11,8 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
 import android.widget.Toast
+import com.example.nocturnal.R
+import com.example.nocturnal.ui.login.LoginFragment
 
 class SignUpFragment : Fragment() {
 
@@ -57,6 +59,13 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
             }
         }
+        binding.switchToLogin.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, LoginFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 
     override fun onDestroyView() {
