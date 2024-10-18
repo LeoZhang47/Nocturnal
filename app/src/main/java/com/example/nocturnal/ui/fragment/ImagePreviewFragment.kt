@@ -5,11 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.nocturnal.R
+import com.example.nocturnal.data.model.viewmodel.PostViewModel
+import java.util.Date
 
 class ImagePreviewFragment : Fragment() {
+
+    private lateinit var postViewModel: PostViewModel
 
     companion object {
         private const val ARG_IMAGE_URI = "image_uri"
@@ -21,6 +27,11 @@ class ImagePreviewFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        postViewModel = ViewModelProvider(this)[PostViewModel::class.java] // Initialize ViewModel
     }
 
     override fun onCreateView(
@@ -36,6 +47,18 @@ class ImagePreviewFragment : Fragment() {
         imageUri?.let {
             val image_view: ImageView = view.findViewById(R.id.image_view)
             image_view.setImageURI(Uri.parse(it))
+        }
+        val postButton: Button = view.findViewById(R.id.post_button)
+        postButton.setOnClickListener {
+            saveMediaToFirestore(imageUri)
+        }
+
+    }
+    private fun saveMediaToFirestore(imageUri: String?) {
+        imageUri?.let {
+            val mediaUri = Uri.parse(it)
+            val timestamp = Date() // Get current timestamp
+            postViewModel.storePost(mediaUri.toString(), timestamp) // Store media as String
         }
     }
 }

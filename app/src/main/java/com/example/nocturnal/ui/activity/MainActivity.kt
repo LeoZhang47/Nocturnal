@@ -2,14 +2,11 @@ package com.example.nocturnal.ui.activity
 
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.nocturnal.R
-import com.example.nocturnal.ui.login.LoginFragment
-import com.example.nocturnal.ui.signup.SignUpFragment
-import com.example.nocturnal.ui.theme.NocturnalTheme
+import com.example.nocturnal.ui.fragment.SignUpFragment
 
 class MainActivity : AppCompatActivity() {
 
