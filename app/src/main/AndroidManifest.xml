@@ -36,7 +36,7 @@
         <activity
             android:name=".ui.activity.CameraActivity"
             android:exported="true"
-            android:label="Camera Activity"
+            android:label="Nocturnal"
             android:theme="@style/Theme.Nocturnal">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -44,10 +44,12 @@
 <!--            </intent-filter>-->
         </activity>
 
+
+
         <!-- FileProvider to securely share files -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${packageName}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

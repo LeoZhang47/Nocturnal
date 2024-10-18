@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation("androidx.fragment:fragment-ktx:1.8.4")
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
