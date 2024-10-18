@@ -1,5 +1,6 @@
 package com.example.nocturnal.data
 
+import com.example.nocturnal.data.model.viewmodel.Bar
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreRepository {
@@ -12,4 +13,23 @@ class FirestoreRepository {
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception -> onFailure(exception) }
     }
+
+    fun getBars(onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
+        db.collection("bars")
+            .get()
+            .addOnSuccessListener { result ->
+                val barsList = result.map { document ->
+                    Bar(
+                        name = document.getString("name") ?: "",
+                        location = document.getGeoPoint("location")
+                    )
+                }
+                onResult(barsList)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
+
+
 }

@@ -44,6 +44,14 @@
 <!--            </intent-filter>-->
         </activity>
 
+        <!-- BarListActivity -->
+        <activity
+            android:name=".ui.activity.BarListActivity"
+            android:exported="true"
+            android:label="Nocturnal"
+            android:theme="@style/Theme.Nocturnal">
+        </activity>
+
 
 
         <!-- FileProvider to securely share files -->

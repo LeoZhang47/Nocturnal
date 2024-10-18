@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.activity)
-    implementation("androidx.fragment:fragment-ktx:1.8.4")
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
@@ -79,6 +79,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.navigation.compose)
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
