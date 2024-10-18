@@ -5,20 +5,20 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.fragment.MediaSelectionFragment
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
 
 class CameraActivity : AppCompatActivity() {
@@ -48,11 +48,33 @@ class CameraActivity : AppCompatActivity() {
             }
         }
 
+        // Set up the ActionBar to include the settings menu
+        setSupportActionBar(findViewById(R.id.toolbar))
+
         // Load the ButtonFragment by default
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 replace(R.id.fragment_container, MediaSelectionFragment())
             }
+        }
+    }
+
+    // Inflate the settings menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.camera_menu, menu)
+        return true
+    }
+
+    // Handle the settings icon click
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                // Navigate to the ProfileScreen using an Intent
+                val intent = Intent(this, ProfileActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -70,11 +92,13 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun createImageFile(): File {
-        return File(applicationContext.filesDir, "IMG_${Date()}.JPG")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        return File(applicationContext.filesDir, "IMG_${timeStamp}.JPG")
     }
 
     private fun createVideoFile(): File {
-        return File(applicationContext.filesDir, "VID_${Date()}.MP4")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        return File(applicationContext.filesDir, "VID_${timeStamp}.MP4")
     }
 
     private fun capturePhoto() {
@@ -97,7 +121,6 @@ class CameraActivity : AppCompatActivity() {
             takePictureLauncher.launch(uri)
         }
     }
-
 
     private fun showImageFragment(uri: Uri) {
         supportFragmentManager.commit {

@@ -15,13 +15,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController) {
+fun ProfileScreen(onBackClick: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
+                title = { Text("Back") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { onBackClick() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_back_24px),
                             contentDescription = "Back"
@@ -31,7 +31,6 @@ fun ProfileScreen(navController: NavHostController) {
             )
         }
     ) { innerPadding ->
-        // Apply innerPadding to avoid content being obscured
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -43,9 +42,7 @@ fun ProfileScreen(navController: NavHostController) {
             // "Profile" Heading
             Text(
                 text = "Profile",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
             )
 

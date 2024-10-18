@@ -1,4 +1,4 @@
-package com.example.nocturnal.ui.login
+package com.example.nocturnal.ui.fragment
 
 import android.content.Intent
 import androidx.fragment.app.Fragment
@@ -11,6 +11,8 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
 import android.widget.Toast
+import com.example.nocturnal.R
+import com.example.nocturnal.ui.signup.SignUpFragment
 
 
 class LoginFragment : Fragment() {
@@ -50,6 +52,13 @@ class LoginFragment : Fragment() {
                 }
             }
         }
+        binding.switchToSignup.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, SignUpFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 
     override fun onDestroyView() {

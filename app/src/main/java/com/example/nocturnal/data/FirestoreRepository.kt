@@ -2,6 +2,7 @@ package com.example.nocturnal.data
 
 import com.example.nocturnal.data.model.viewmodel.Bar
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -32,4 +33,10 @@ class FirestoreRepository {
     }
 
 
+
+    fun storePost(media: String, timestamp: Date) {
+        val media = hashMapOf("media" to media, "timestamp" to timestamp)
+        db.collection("posts").document()
+            .set(media)
+    }
 }
