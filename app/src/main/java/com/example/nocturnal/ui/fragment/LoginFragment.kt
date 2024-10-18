@@ -12,7 +12,7 @@ import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
 import android.widget.Toast
 import com.example.nocturnal.R
-import com.example.nocturnal.ui.signup.SignUpFragment
+import com.example.nocturnal.ui.fragment.SignUpFragment
 
 
 class LoginFragment : Fragment() {
