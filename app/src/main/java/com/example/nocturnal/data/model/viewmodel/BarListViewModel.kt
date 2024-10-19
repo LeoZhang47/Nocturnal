@@ -2,18 +2,13 @@ package com.example.nocturnal.data.model.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.FirestoreRepository
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-data class Bar(
-    val id: String = "",
-    val name: String = "",
-    val description: String = "",
-    val location: GeoPoint ?= null
-)
 
 class BarListViewModel() : ViewModel() {
     private val repository = FirestoreRepository()
