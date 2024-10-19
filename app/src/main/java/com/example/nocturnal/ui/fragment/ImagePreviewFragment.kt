@@ -63,9 +63,17 @@ class ImagePreviewFragment : Fragment() {
         imageUri?.let {
             val mediaUri = Uri.parse(it)
             val timestamp = Date() // Get current timestamp
+//            postViewModel.storePost(mediaUri.toString(), timestamp,
+//                onSuccess = {
+//                    Toast.makeText(requireActivity(), "Post success", Toast.LENGTH_SHORT).show()
+//                },
+//                onFailure = { exception ->
+//                    Toast.makeText(requireActivity(), "Failed to store post: ${exception.message}", Toast.LENGTH_SHORT).show()
+//                }
+//            )
             postViewModel.storePost(mediaUri.toString(), timestamp)
 
-
+            // Toast.makeText(requireActivity(), "hi", Toast.LENGTH_SHORT).show()
         }
     }
 }

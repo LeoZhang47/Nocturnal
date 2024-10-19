@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1") // Check for the latest version
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -107,7 +108,9 @@ dependencies {
 
     implementation ("com.google.firebase:firebase-auth")
 
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
+    implementation ("androidx.compose.runtime:runtime:1.0.5")
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries

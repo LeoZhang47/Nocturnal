@@ -22,4 +22,6 @@
     <string name="record_video">Record a video</string>
     <string name="captured_image">Captured Image</string>
     <string name="post_picture">Post Picture</string>
+    <string name="barlist_button">Go to Bar List</string>
+
 </resources>
