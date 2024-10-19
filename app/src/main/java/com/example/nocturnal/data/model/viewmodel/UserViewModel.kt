@@ -1,5 +1,6 @@
 package com.example.nocturnal.data.model.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.nocturnal.data.FirestoreRepository
 import androidx.lifecycle.liveData
@@ -47,10 +48,10 @@ class UserViewModel : ViewModel() {
     fun storeUsername(uid: String, username: String) {
         repository.storeUsername(uid, username,
             onSuccess = {
-                // Success logic
+                Log.d("storeUsername","Username stored successfully")
             },
-            onFailure = { exception ->
-                // Handle error
+            onFailure = { e ->
+                e.printStackTrace()
             }
         )
     }

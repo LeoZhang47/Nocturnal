@@ -25,8 +25,8 @@ class BarListViewModel() : ViewModel() {
                 onResult = { barsList ->
                     _bars.value = barsList
                 },
-                onError = { exception ->
-                    // Handle the error
+                onError = { e ->
+                    e.printStackTrace()
                 }
             )
         }

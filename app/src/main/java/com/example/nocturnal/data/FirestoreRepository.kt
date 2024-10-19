@@ -1,6 +1,6 @@
 package com.example.nocturnal.data
 
-import com.example.nocturnal.data.model.viewmodel.Bar
+import com.example.nocturnal.data.Bar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date

@@ -32,8 +32,8 @@ class ProfileActivity : AppCompatActivity() {
                     }
                 }
             },
-            onFailure = {
-                // Handle failure to fetch images
+            onFailure = { e ->
+                e.printStackTrace()
             }
         )
     }
