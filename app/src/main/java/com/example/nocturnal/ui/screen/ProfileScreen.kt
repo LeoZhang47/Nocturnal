@@ -47,6 +47,22 @@ fun ProfileScreen(
     var errorMessage by remember { mutableStateOf("") }
     var passwordErrorMessage by remember { mutableStateOf("") }
 
+    // User score state
+    var userScore by remember { mutableStateOf(0) }
+    var scoreErrorMessage by remember { mutableStateOf("") }
+
+    // Fetch the user score when ProfileScreen is composed
+    LaunchedEffect(Unit) {
+        userViewModel.getUserScore(
+            onSuccess = { score ->
+                userScore = score
+            },
+            onFailure = { error ->
+                scoreErrorMessage = error
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,7 +101,7 @@ fun ProfileScreen(
 
                 // Display user score (Placeholder)
                 Text(
-                    text = "Score: XX",
+                    text = "Score: ${userScore}",
                     style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center
                 )

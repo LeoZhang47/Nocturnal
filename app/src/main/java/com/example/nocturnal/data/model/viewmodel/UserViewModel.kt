@@ -77,6 +77,31 @@ class UserViewModel : ViewModel() {
         return usernameFlow
     }
 
+    fun getUserScore(onSuccess: (Int) -> Unit, onFailure: (String) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            val firestore = FirebaseFirestore.getInstance()
+
+            // Access user's document in Firestore
+            firestore.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Check if the document has a "score" field
+                        val score = document.getLong("score")?.toInt() ?: 0
+                        onSuccess(score)  // Return the score or 0 if score is null
+                    } else {
+                        onSuccess(0)  // Document does not exist, return 0
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception.message ?: "Failed to retrieve score")
+                }
+        } else {
+            onFailure("No user logged in")
+        }
+    }
+
     // Method to change the username
     fun changeUsername(newUsername: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         val currentUser = getCurrentUser()
