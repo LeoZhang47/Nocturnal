@@ -55,6 +55,17 @@ class UserViewModel : ViewModel() {
         )
     }
 
+    fun storeScore(uid: String, score: Int) {
+        repository.storeScore(uid, score,
+            onSuccess = {
+                // Success logic
+            },
+            onFailure = { exception ->
+                // Handle error
+            }
+        )
+    }
+
     // Expose the current FirebaseAuth instance
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser

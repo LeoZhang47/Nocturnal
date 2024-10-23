@@ -19,6 +19,14 @@ class FirestoreRepository {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
+    fun storeScore(uid: String, score: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userScore = hashMapOf("score" to score)
+        db.collection("users").document(uid)
+            .set(userScore, com.google.firebase.firestore.SetOptions.merge())  // Merge the score with existing data
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { exception -> onFailure(exception) }
+    }
+
     fun getBars(onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
         db.collection("bars")
             .get()
