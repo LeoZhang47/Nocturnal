@@ -94,5 +94,21 @@ class UserViewModel : ViewModel() {
             onFailure("No user logged in")
         }
     }
+
+    fun changePassword(newPassword: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            currentUser.updatePassword(newPassword)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onSuccess()  // Password updated successfully
+                    } else {
+                        onFailure(task.exception?.message ?: "Failed to update password")
+                    }
+                }
+        } else {
+            onFailure("No user logged in")
+        }
+    }
 }
 
