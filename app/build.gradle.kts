@@ -58,6 +58,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1") // Check for the latest version
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.mapbox.maps:android:11.7.1")
+    implementation("com.mapbox.extension:maps-compose:11.7.1")
+    implementation("com.karumi:dexter:6.2.3")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
