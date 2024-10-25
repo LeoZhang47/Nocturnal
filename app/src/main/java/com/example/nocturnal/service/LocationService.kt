@@ -60,6 +60,5 @@ class LocationService(private val context: Context, private val mapView: MapView
         mapView.location.addOnIndicatorPositionChangedListener(OnIndicatorPositionChangedListener { point ->
             _locationLiveData.postValue(point)
         })
-        mapView.mapboxMap.
     }
 }
