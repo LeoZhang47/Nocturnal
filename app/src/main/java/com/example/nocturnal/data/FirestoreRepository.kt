@@ -25,8 +25,14 @@ class FirestoreRepository {
             .addOnSuccessListener { result ->
                 val barsList = result.map { document ->
                     Bar(
+                        id = document.id,
                         name = document.getString("name") ?: "",
-                        location = document.getGeoPoint("location")
+                        location = document.getGeoPoint("location"),
+                        postIDs = if (document.get("postIDs") is List<*>) {
+                            (document.get("postIDs") as List<*>).filterIsInstance<String>()
+                        } else {
+                            emptyList()
+                        }
                     )
                 }
                 onResult(barsList)
