@@ -47,6 +47,7 @@ class SignUpFragment : Fragment() {
                 userViewModel.registerUser(email, password) { isSuccess, errorMessage, uid ->
                     if (isSuccess && uid != null) {
                         userViewModel.storeUsername(uid, username)
+                        userViewModel.storeScore(uid, 0)
                         Toast.makeText(context, "Registration successful", Toast.LENGTH_LONG).show()
                         // Navigate to CameraActivity
                         val intent = Intent(activity, CameraActivity::class.java)
