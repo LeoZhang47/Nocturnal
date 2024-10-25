@@ -19,6 +19,8 @@ import com.example.nocturnal.R
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,10 +39,29 @@ fun ProfileScreen(
     // Collect the StateFlow safely
     val username by usernameFlow.collectAsState()
 
-    // Track dialog visibility and the entered username
+    // Track dialog visibility and the entered username and password
     var showDialog by remember { mutableStateOf(false) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
     var newUsername by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    var passwordErrorMessage by remember { mutableStateOf("") }
+
+    // User score state
+    var userScore by remember { mutableStateOf(0) }
+    var scoreErrorMessage by remember { mutableStateOf("") }
+
+    // Fetch the user score when ProfileScreen is composed
+    LaunchedEffect(Unit) {
+        userViewModel.getUserScore(
+            onSuccess = { score ->
+                userScore = score
+            },
+            onFailure = { error ->
+                scoreErrorMessage = error
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -67,7 +88,7 @@ fun ProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp), // Add padding below the buttons
+                    .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
             ) {
@@ -80,7 +101,7 @@ fun ProfileScreen(
 
                 // Display user score (Placeholder)
                 Text(
-                    text = "Score: XX",
+                    text = "Score: ${userScore}",
                     style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center
                 )
@@ -105,7 +126,7 @@ fun ProfileScreen(
 
                 // Change Password Button
                 Button(
-                    onClick = { /* Handle Change Password */ },
+                    onClick = { showPasswordDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -204,6 +225,53 @@ fun ProfileScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        // Dialog for entering new password
+        if (showPasswordDialog) {
+            AlertDialog(
+                onDismissRequest = { showPasswordDialog = false },
+                title = { Text(text = "Change Password") },
+                text = {
+                    Column {
+                        TextField(
+                            value = newPassword,
+                            onValueChange = { newPassword = it },
+                            label = { Text("Enter new password") },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation() // Mask the input
+                        )
+                        if (passwordErrorMessage.isNotEmpty()) {
+                            Text(
+                                text = passwordErrorMessage,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        userViewModel.changePassword(
+                            newPassword,
+                            onSuccess = {
+                                showPasswordDialog = false
+                                passwordErrorMessage = ""
+                            },
+                            onFailure = { error ->
+                                passwordErrorMessage = error
+                            }
+                        )
+                    }) {
+                        Text("Submit")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showPasswordDialog = false }) {
                         Text("Cancel")
                     }
                 }
