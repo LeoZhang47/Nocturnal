@@ -1,6 +1,6 @@
 package com.example.nocturnal.data
 
-import com.example.nocturnal.data.model.viewmodel.Bar
+import com.example.nocturnal.data.Bar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
@@ -25,8 +25,14 @@ class FirestoreRepository {
             .addOnSuccessListener { result ->
                 val barsList = result.map { document ->
                     Bar(
+                        id = document.id,
                         name = document.getString("name") ?: "",
-                        location = document.getGeoPoint("location")
+                        location = document.getGeoPoint("location"),
+                        postIDs = if (document.get("postIDs") is List<*>) {
+                            (document.get("postIDs") as List<*>).filterIsInstance<String>()
+                        } else {
+                            emptyList()
+                        }
                     )
                 }
                 onResult(barsList)
