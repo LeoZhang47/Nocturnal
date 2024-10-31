@@ -147,5 +147,13 @@ class UserViewModel : ViewModel() {
             onFailure("No user logged in")
         }
     }
+
+    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        repository.getUserProfilePicture(
+            uid,
+            onSuccess = { url -> onSuccess(url) },
+            onFailure = { exception -> onFailure(exception) }
+        )
+    }
 }
 
