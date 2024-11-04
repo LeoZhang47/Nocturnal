@@ -119,7 +119,7 @@ class FirestoreRepository {
             }
             .addOnFailureListener {
                 // If the user-specific profile picture is not found, get the default profile picture
-                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal-default-pfp.png/")
+                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal-defualt-pfp.png/")
                 defaultPfpRef.downloadUrl
                     .addOnSuccessListener { defaultUri ->
                         // Return the default profile picture URL
