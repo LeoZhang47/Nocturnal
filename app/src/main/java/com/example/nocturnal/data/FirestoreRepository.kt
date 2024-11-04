@@ -70,7 +70,15 @@ class FirestoreRepository {
     }
 
     fun storePost(media: String, timestamp: Date, uid: String /*, onSuccess: () -> Unit, onFailure: (Exception) -> Unit*/) {
-        val media = hashMapOf("media" to media, "timestamp" to timestamp, "user" to uid )
+        val media = hashMapOf("media" to media, "timestamp" to timestamp, "user" to uid)
+        db.collection("posts").document()
+            .set(media)
+//            .addOnSuccessListener { onSuccess() }
+//            .addOnFailureListener { exception -> onFailure(exception) }
+    }
+
+    fun storePost(media: String, timestamp: Date, uid: String, barID: String /*, onSuccess: () -> Unit, onFailure: (Exception) -> Unit*/) {
+        val media = hashMapOf("media" to media, "timestamp" to timestamp, "user" to uid, "bar" to barID)
         db.collection("posts").document()
             .set(media)
 //            .addOnSuccessListener { onSuccess() }
