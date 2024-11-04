@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.activity.BarListActivity
 import com.example.nocturnal.ui.activity.CameraActivity
+import com.example.nocturnal.ui.activity.MapActivity
 
 class MediaSelectionFragment : Fragment() {
 
@@ -27,6 +28,7 @@ class MediaSelectionFragment : Fragment() {
         val pictureButton: Button = view.findViewById(R.id.picture_button)
         val videoButton: Button = view.findViewById(R.id.video_button)
         val viewBarsButton: Button = view.findViewById(R.id.btn_view_bars) // New View Bars button
+        val mapButton: Button = view.findViewById(R.id.map_button)
 
         // Set click listener for picture button
         pictureButton.setOnClickListener {
@@ -42,6 +44,11 @@ class MediaSelectionFragment : Fragment() {
         viewBarsButton.setOnClickListener {
             // Navigate to BarListActivity when clicked
             val intent = Intent(requireContext(), BarListActivity::class.java)
+            startActivity(intent)
+        }
+
+        mapButton.setOnClickListener {
+            val intent = Intent(requireContext(), MapActivity::class.java)
             startActivity(intent)
         }
     }

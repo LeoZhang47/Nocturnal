@@ -115,4 +115,30 @@ class FirestoreRepository {
             }
     }
 
+    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        // Reference to the user's profile picture in the "profile-pictures" folder
+        val userPfpRef = storageRef.child("profile-pictures/pfp-$uid")
+
+        // Attempt to get the download URL of the user-specific profile picture
+        userPfpRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                // User-specific profile picture exists, return its URL
+                onSuccess(uri.toString())
+            }
+            .addOnFailureListener {
+                // If the user-specific profile picture is not found, get the default profile picture
+                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal-default-pfp.png/")
+                defaultPfpRef.downloadUrl
+                    .addOnSuccessListener { defaultUri ->
+                        // Return the default profile picture URL
+                        onSuccess(defaultUri.toString())
+                    }
+                    .addOnFailureListener { defaultException ->
+                        // If both the user-specific and default images fail, report an error
+                        onFailure(defaultException)
+                    }
+            }
+    }
+
+
 }
