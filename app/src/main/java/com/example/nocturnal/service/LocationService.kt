@@ -17,10 +17,18 @@ import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 
+import android.os.Handler
+import android.os.Looper
+import java.util.concurrent.TimeUnit
+
 class LocationService(private val context: Context, private val mapView: MapView) {
 
     private val _locationLiveData = MutableLiveData<Point>()
     val locationLiveData: LiveData<Point> = _locationLiveData
+    private val handler = Handler(Looper.getMainLooper())
+    private var lastUpdateTime = 0L
+
+    private val updateIntervalMillis = TimeUnit.SECONDS.toMillis(30) // 30 seconds
 
     fun requestLocationPermission() {
         Dexter.withContext(context)
@@ -58,7 +66,11 @@ class LocationService(private val context: Context, private val mapView: MapView
         }
 
         mapView.location.addOnIndicatorPositionChangedListener(OnIndicatorPositionChangedListener { point ->
-            _locationLiveData.postValue(point)
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastUpdateTime > updateIntervalMillis) {
+                _locationLiveData.postValue(point)
+                lastUpdateTime = currentTime
+            }
         })
     }
 }
