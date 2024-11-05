@@ -69,20 +69,23 @@ fun BarDetailScreen(bar: Bar?) {
     val viewModel: BarListViewModel = viewModel(
         factory = remember { BarListViewModel.Factory }
     )
-    val posts by viewModel.posts.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)) {
         if (bar != null) {
-            Text(text = "Bar Name: ${bar.name}", style = MaterialTheme.typography.headlineMedium)
+            Text(text = bar.name, style = MaterialTheme.typography.headlineMedium)
 
-            val lat = bar.location?.latitude
-            val lng = bar.location?.longitude
-            if (lat != null && lng != null) {
-                Text(text = "Location: Lat: $lat, Lng: $lng")
-            } else {
-                Text(text = "Location: Unknown")
+//            val lat = bar.location?.latitude
+//            val lng = bar.location?.longitude
+//            if (lat != null && lng != null) {
+//                Text(text = "Location: Lat: $lat, Lng: $lng")
+//            } else {
+//                Text(text = "Location: Unknown")
+//            }
+
+            if (bar.postIDs.isEmpty()) {
+                Text(text = "No one has posted yet. Be the first!")
             }
 
             // Display images
@@ -94,6 +97,8 @@ fun BarDetailScreen(bar: Bar?) {
                     // get instance of post from postID
                     val post = viewModel.getPostById(postID)
                     // set imageUrl to post.media
+                    // Consider using Glide library for image loading
+                    // https://stackoverflow.com/questions/33194477/display-default-image-in-imageview-if-no-image-returned-from-server
                     if (post != null) {
                         Image(
                             painter = rememberAsyncImagePainter(post.media),
@@ -105,7 +110,7 @@ fun BarDetailScreen(bar: Bar?) {
                         )
                     } else {
                         Image(
-                            painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2Ferror-icon-lg.png?alt=media&token=8d122bd9-5c69-4f1e-8485-81b5740711c8"),
+                            painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2FDefaultImage.png?alt=media&token=6c8e7702-287a-4f08-8c41-9a09aeda8afc"),
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxWidth()
