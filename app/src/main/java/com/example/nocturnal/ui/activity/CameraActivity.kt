@@ -32,7 +32,7 @@ class CameraActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             mediaUri?.let { uri ->
-                showImageFragment(uri)
+                showImageFragment(uri) // Show the captured image in ImagePreviewFragment
             }
         }
     }
@@ -44,14 +44,22 @@ class CameraActivity : AppCompatActivity() {
         // Initialize permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.CAMERA] == true) {
-                // Permission granted
+                if (intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)) {
+                    capturePhoto()
+                }
             }
+        }
+
+        // Check if the activity was launched for profile picture update
+        val isProfilePictureUpdate = intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)
+        if (isProfilePictureUpdate) {
+            checkCameraPermission("image")
         }
 
         // Set up the ActionBar to include the settings menu
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        // Load the ButtonFragment by default
+        // Load the MediaSelectionFragment by default
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 replace(R.id.fragment_container, MediaSelectionFragment())
@@ -69,7 +77,6 @@ class CameraActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
-                // Navigate to the ProfileScreen using an Intent
                 val intent = Intent(this, ProfileActivity::class.java)
                 startActivity(intent)
                 true
@@ -94,11 +101,6 @@ class CameraActivity : AppCompatActivity() {
     private fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         return File(applicationContext.filesDir, "IMG_${timeStamp}.JPG")
-    }
-
-    private fun createVideoFile(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        return File(applicationContext.filesDir, "VID_${timeStamp}.MP4")
     }
 
     private fun capturePhoto() {

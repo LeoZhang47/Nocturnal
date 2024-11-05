@@ -30,7 +30,8 @@ fun ProfileScreen(
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
     imageUrls: List<String>, // Add image URLs parameter
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel = viewModel(),
+    onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
 
@@ -136,7 +137,7 @@ fun ProfileScreen(
 
                 // Change Profile Picture Button
                 Button(
-                    onClick = { /* Handle Change Profile Picture */ },
+                    onClick = { onChangeProfilePicture() },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
