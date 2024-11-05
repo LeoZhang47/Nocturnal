@@ -15,11 +15,11 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.commit
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.fragment.MediaSelectionFragment
-import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
+import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 
 class CameraActivity : AppCompatActivity() {
 
@@ -32,7 +32,15 @@ class CameraActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             mediaUri?.let { uri ->
-                showImageFragment(uri)
+                // Check if this is a profile picture update
+                val isProfilePictureUpdate = intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)
+                if (isProfilePictureUpdate) {
+                    // Directly return the URI to ProfileActivity without showing preview
+                    setResultAndFinish(uri)
+                } else {
+                    // Show preview for normal camera usage
+                    showImageFragment(uri)
+                }
             }
         }
     }
@@ -44,14 +52,22 @@ class CameraActivity : AppCompatActivity() {
         // Initialize permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.CAMERA] == true) {
-                // Permission granted
+                if (intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)) {
+                    capturePhoto()
+                }
             }
+        }
+
+        // Check if the activity was launched for profile picture update
+        val isProfilePictureUpdate = intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)
+        if (isProfilePictureUpdate) {
+            checkCameraPermission("image")
         }
 
         // Set up the ActionBar to include the settings menu
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        // Load the ButtonFragment by default
+        // Load the MediaSelectionFragment by default
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 replace(R.id.fragment_container, MediaSelectionFragment())
@@ -69,7 +85,6 @@ class CameraActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
-                // Navigate to the ProfileScreen using an Intent
                 val intent = Intent(this, ProfileActivity::class.java)
                 startActivity(intent)
                 true
@@ -94,11 +109,6 @@ class CameraActivity : AppCompatActivity() {
     private fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         return File(applicationContext.filesDir, "IMG_${timeStamp}.JPG")
-    }
-
-    private fun createVideoFile(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        return File(applicationContext.filesDir, "VID_${timeStamp}.MP4")
     }
 
     private fun capturePhoto() {
@@ -127,5 +137,11 @@ class CameraActivity : AppCompatActivity() {
             replace(R.id.fragment_container, ImagePreviewFragment.newInstance(uri.toString()))
             addToBackStack(null)
         }
+    }
+
+    private fun setResultAndFinish(uri: Uri) {
+        val resultIntent = Intent().apply { data = uri }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

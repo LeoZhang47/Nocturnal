@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +21,7 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,15 +30,28 @@ fun ProfileScreen(
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
     imageUrls: List<String>, // Add image URLs parameter
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel = viewModel(),
+    onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
 
     // If currentUser is null, handle it with a fallback (e.g., "Guest")
     val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow("Guest")
-
-    // Collect the StateFlow safely
     val username by usernameFlow.collectAsState()
+
+    // User profile picture state
+    var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+
+
+    // Fetch the profile picture URL when ProfileScreen is composed
+    LaunchedEffect(currentUser) {
+        currentUser?.uid?.let { uid ->
+            userViewModel.getUserProfilePicture(uid,
+                onSuccess = { url -> profilePictureUrl = url },
+                onFailure = { profilePictureUrl = null }
+            )
+        }
+    }
 
     // Track dialog visibility and the entered username and password
     var showDialog by remember { mutableStateOf(false) }
@@ -54,12 +68,8 @@ fun ProfileScreen(
     // Fetch the user score when ProfileScreen is composed
     LaunchedEffect(Unit) {
         userViewModel.getUserScore(
-            onSuccess = { score ->
-                userScore = score
-            },
-            onFailure = { error ->
-                scoreErrorMessage = error
-            }
+            onSuccess = { score -> userScore = score },
+            onFailure = { error -> scoreErrorMessage = error }
         )
     }
 
@@ -92,6 +102,16 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
             ) {
+                // Display Profile Picture
+                Image(
+                    painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp),
+                    contentScale = ContentScale.Crop
+                )
+
                 // "Profile" Heading
                 Text(
                     text = username,
@@ -117,7 +137,7 @@ fun ProfileScreen(
 
                 // Change Profile Picture Button
                 Button(
-                    onClick = { /* Handle Change Profile Picture */ },
+                    onClick = { onChangeProfilePicture() },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -214,9 +234,7 @@ fun ProfileScreen(
                                     showDialog = false
                                     errorMessage = ""
                                 },
-                                onFailure = { error ->
-                                    errorMessage = error
-                                }
+                                onFailure = { error -> errorMessage = error }
                             )
                         }
                     }) {
@@ -262,9 +280,7 @@ fun ProfileScreen(
                                 showPasswordDialog = false
                                 passwordErrorMessage = ""
                             },
-                            onFailure = { error ->
-                                passwordErrorMessage = error
-                            }
+                            onFailure = { error -> passwordErrorMessage = error }
                         )
                     }) {
                         Text("Submit")
