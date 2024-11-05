@@ -15,11 +15,11 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.commit
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.fragment.MediaSelectionFragment
-import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
+import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 
 class CameraActivity : AppCompatActivity() {
 
@@ -32,7 +32,15 @@ class CameraActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             mediaUri?.let { uri ->
-                showImageFragment(uri) // Show the captured image in ImagePreviewFragment
+                // Check if this is a profile picture update
+                val isProfilePictureUpdate = intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)
+                if (isProfilePictureUpdate) {
+                    // Directly return the URI to ProfileActivity without showing preview
+                    setResultAndFinish(uri)
+                } else {
+                    // Show preview for normal camera usage
+                    showImageFragment(uri)
+                }
             }
         }
     }
@@ -129,5 +137,11 @@ class CameraActivity : AppCompatActivity() {
             replace(R.id.fragment_container, ImagePreviewFragment.newInstance(uri.toString()))
             addToBackStack(null)
         }
+    }
+
+    private fun setResultAndFinish(uri: Uri) {
+        val resultIntent = Intent().apply { data = uri }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

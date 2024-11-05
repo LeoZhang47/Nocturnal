@@ -20,19 +20,28 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val uid = currentUser?.uid ?: return
+
         // Initialize the ActivityResultLauncher for handling results from CameraActivity
         captureProfilePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val imageUri: Uri? = result.data?.data
-                imageUri?.let {
-                    // Update the user's profile picture in the repository or ViewModel
-                    //repository.updateUserProfilePicture(it.toString()) // Adjust method as needed
+                imageUri?.let { uri ->
+                    // Assuming uid is available in ProfileActivity
+                    repository.updateUserProfilePicture(uid, uri,
+                        onSuccess = { downloadUrl ->
+                            // Handle success, e.g., update the UI with the new profile picture
+                            // Perhaps store the downloadUrl in the ViewModel or directly update the profile picture display
+                        },
+                        onFailure = { exception ->
+                            // Handle failure, e.g., show a Toast or log the error
+                            exception.printStackTrace()
+                        }
+                    )
                 }
             }
         }
-
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        val uid = currentUser?.uid ?: return
 
         repository.getUserPosts(uid,
             onSuccess = { imageUrls ->
