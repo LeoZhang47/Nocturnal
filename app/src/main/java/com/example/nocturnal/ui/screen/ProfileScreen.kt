@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +21,7 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +30,8 @@ fun ProfileScreen(
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
     imageUrls: List<String>, // Add image URLs parameter
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel = viewModel(),
+    onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
 
@@ -38,6 +41,7 @@ fun ProfileScreen(
 
     // User profile picture state
     var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+
 
     // Fetch the profile picture URL when ProfileScreen is composed
     LaunchedEffect(currentUser) {
@@ -133,7 +137,7 @@ fun ProfileScreen(
 
                 // Change Profile Picture Button
                 Button(
-                    onClick = { /* Handle Change Profile Picture */ },
+                    onClick = { onChangeProfilePicture() },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {

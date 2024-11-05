@@ -6,6 +6,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
+import android.net.Uri
+
 import java.util.UUID
 
 class FirestoreRepository {
@@ -149,7 +151,7 @@ class FirestoreRepository {
             }
             .addOnFailureListener {
                 // If the user-specific profile picture is not found, get the default profile picture
-                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal-default-pfp.png/")
+                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal-defualt-pfp.png/")
                 defaultPfpRef.downloadUrl
                     .addOnSuccessListener { defaultUri ->
                         // Return the default profile picture URL
@@ -159,6 +161,30 @@ class FirestoreRepository {
                         // If both the user-specific and default images fail, report an error
                         onFailure(defaultException)
                     }
+            }
+    }
+
+    fun updateUserProfilePicture(uid: String, imageUri: Uri, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        // Reference to where the profile picture will be stored
+        val userPfpRef = storageRef.child("profile-pictures/pfp-$uid")
+
+        // Upload the image to Firebase Storage
+        userPfpRef.putFile(imageUri)
+            .addOnSuccessListener {
+                // After upload, get the download URL
+                userPfpRef.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        // Return the download URL as a success callback
+                        onSuccess(uri.toString())
+                    }
+                    .addOnFailureListener { exception ->
+                        // Failed to get the download URL after upload
+                        onFailure(exception)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                // Failed to upload the image
+                onFailure(exception)
             }
     }
 
