@@ -20,7 +20,6 @@ class BarListActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             val viewModel: BarListViewModel by viewModels { BarListViewModel.Factory }
-            val bars by viewModel.bars.collectAsState()
             NavHost(navController = navController, startDestination = "list") {
                 composable("list") { BarListView(navController) }
                 composable("barDetail/{barID}") { backStackEntry ->

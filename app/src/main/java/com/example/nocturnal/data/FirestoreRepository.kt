@@ -1,6 +1,8 @@
 package com.example.nocturnal.data
 
 import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Post
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
@@ -44,6 +46,26 @@ class FirestoreRepository {
                     )
                 }
                 onResult(barsList)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
+
+    fun getPosts(onResult: (List<Post>) -> Unit, onError: (Exception) -> Unit) {
+        db.collection("posts")
+            .get()
+            .addOnSuccessListener { result ->
+                val postsList = result.map { document ->
+                    Post(
+                        id = document.id,
+                        media = document.getString("media") ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2Ferror-icon-lg.png?alt=media&token=8d122bd9-5c69-4f1e-8485-81b5740711c8",
+                        timestamp = document.getTimestamp("timestamp") ?: Timestamp.now(),
+                        userID = document.getString("userID") ?: "",
+                        barID = document.getString("barID") ?: ""
+                    )
+                }
+                onResult(postsList)
             }
             .addOnFailureListener { exception ->
                 onError(exception)

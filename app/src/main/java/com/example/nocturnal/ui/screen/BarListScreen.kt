@@ -1,3 +1,6 @@
+import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +19,11 @@ import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import androidx.compose.material3.*
 import androidx.compose.runtime.remember
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun BarListView(navController: NavHostController) {
@@ -61,6 +66,11 @@ fun BarItem(bar: Bar, onBarClick: () -> Unit) {
 
 @Composable
 fun BarDetailScreen(bar: Bar?) {
+    val viewModel: BarListViewModel = viewModel(
+        factory = remember { BarListViewModel.Factory }
+    )
+    val posts by viewModel.posts.collectAsState()
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)) {
@@ -74,6 +84,38 @@ fun BarDetailScreen(bar: Bar?) {
             } else {
                 Text(text = "Location: Unknown")
             }
+
+            // Display images
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(bar.postIDs) { postID ->
+                    // get instance of post from postID
+                    val post = viewModel.getPostById(postID)
+                    // set imageUrl to post.media
+                    if (post != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(post.media),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Image(
+                            painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2Ferror-icon-lg.png?alt=media&token=8d122bd9-5c69-4f1e-8485-81b5740711c8"),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+
         } else {
             Text(text = "Bar not found", style = MaterialTheme.typography.bodyMedium)
         }
