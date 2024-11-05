@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.FirestoreRepository
+import com.example.nocturnal.data.model.Post
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,8 +23,12 @@ class BarListViewModel(
     private val _bars = MutableStateFlow<List<Bar>>(emptyList())
     val bars: StateFlow<List<Bar>> = _bars
 
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> = _posts
+
     init {
         fetchBars()
+        fetchPosts()
     }
 
     private fun fetchBars() {
@@ -39,9 +44,29 @@ class BarListViewModel(
         }
     }
 
+    private fun fetchPosts() {
+        viewModelScope.launch {
+            repository.getPosts(
+                onResult = { postsList ->
+                    _posts.value = postsList
+                },
+                onError = { e ->
+                    e.printStackTrace()
+                }
+            )
+        }
+    }
+
+
+
     fun getBarByID(id: String? ): Bar? {
         return _bars.value.find { it.id == id }
     }
+
+    fun getPostById(id: String? ): Post? {
+        return _posts.value.find { it.id == id }
+    }
+
 
 
     companion object {
