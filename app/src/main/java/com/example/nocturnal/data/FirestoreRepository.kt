@@ -61,7 +61,7 @@ class FirestoreRepository {
                 val postsList = result.map { document ->
                     Post(
                         id = document.id,
-                        media = document.getString("media") ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2Ferror-icon-lg.png?alt=media&token=8d122bd9-5c69-4f1e-8485-81b5740711c8",
+                        media = document.getString("media") ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2FDefaultImage.png?alt=media&token=6c8e7702-287a-4f08-8c41-9a09aeda8afc",
                         timestamp = document.getTimestamp("timestamp") ?: Timestamp.now(),
                         userID = document.getString("userID") ?: "",
                         barID = document.getString("barID") ?: ""
