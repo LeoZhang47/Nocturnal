@@ -116,6 +116,21 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
     implementation ("androidx.compose.runtime:runtime:1.0.5")
+    // Core Compose UI components
+    implementation("androidx.compose.ui:ui:1.5.0") // Core UI components for Compose
+
+    // Material Design components for Compose (includes Scaffold, BottomNavigation)
+    implementation("androidx.compose.material:material:1.5.0")
+
+    // Optional: Tooling support (for previewing composables in Android Studio)
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
+
+    // Navigation for Compose
+    implementation("androidx.navigation:navigation-compose:2.6.0")
+
+    // Additional dependencies (if not already added)
+    implementation("androidx.activity:activity-compose:1.7.2") // Required for setContent in Compose
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1") // Lifecycle support for Compose
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
