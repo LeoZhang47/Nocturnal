@@ -10,13 +10,11 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.geojson.Point
-import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
-
 import android.os.Handler
 import android.os.Looper
 import java.util.concurrent.TimeUnit
@@ -25,10 +23,16 @@ class LocationService(private val context: Context, private val mapView: MapView
 
     private val _locationLiveData = MutableLiveData<Point>()
     val locationLiveData: LiveData<Point> = _locationLiveData
+    private var currentLocation: Point? = null // Store the current location
     private val handler = Handler(Looper.getMainLooper())
     private var lastUpdateTime = 0L
 
     private val updateIntervalMillis = TimeUnit.SECONDS.toMillis(30) // 30 seconds
+
+    // Returns the current location as a Point?
+    fun getCurrentLocation(): Point? {
+        return currentLocation
+    }
 
     fun requestLocationPermission() {
         Dexter.withContext(context)
@@ -68,7 +72,8 @@ class LocationService(private val context: Context, private val mapView: MapView
         mapView.location.addOnIndicatorPositionChangedListener(OnIndicatorPositionChangedListener { point ->
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastUpdateTime > updateIntervalMillis) {
-                _locationLiveData.postValue(point)
+                currentLocation = point // Update the current location
+                _locationLiveData.postValue(point) // Post the new location to LiveData
                 lastUpdateTime = currentTime
             }
         })
