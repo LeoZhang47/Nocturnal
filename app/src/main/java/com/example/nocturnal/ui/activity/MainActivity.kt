@@ -4,11 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.fragment.LoginFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.example.nocturnal.ui.activity.MainScreenActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,8 +19,8 @@ class MainActivity : AppCompatActivity() {
 
         // Check if the user is already logged in
         if (auth.currentUser != null) {
-            // User is logged in, navigate to CameraActivity
-            val intent = Intent(this, CameraActivity::class.java)
+            // User is logged in, navigate to MainScreenActivity
+            val intent = Intent(this, MainScreenActivity::class.java)
             startActivity(intent)
             finish()  // Close MainActivity so it doesn't remain in the back stack
             return
@@ -29,13 +28,6 @@ class MainActivity : AppCompatActivity() {
 
         // If not logged in, set content view and show LoginFragment
         setContentView(R.layout.activity_main)
-
-        // Apply window insets (optional, only if needed)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragment_container)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         // Add the LoginFragment to the fragment container if it's not already added
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)

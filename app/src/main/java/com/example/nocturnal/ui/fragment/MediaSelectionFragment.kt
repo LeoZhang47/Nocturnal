@@ -27,8 +27,6 @@ class MediaSelectionFragment : Fragment() {
         // Find buttons from the layout
         val pictureButton: Button = view.findViewById(R.id.picture_button)
         val videoButton: Button = view.findViewById(R.id.video_button)
-        val viewBarsButton: Button = view.findViewById(R.id.btn_view_bars) // New View Bars button
-        val mapButton: Button = view.findViewById(R.id.map_button)
 
         // Set click listener for picture button
         pictureButton.setOnClickListener {
@@ -38,18 +36,6 @@ class MediaSelectionFragment : Fragment() {
         // Set click listener for video button
         videoButton.setOnClickListener {
             // Handle video recording logic
-        }
-
-        // Set click listener for "View Bars" button
-        viewBarsButton.setOnClickListener {
-            // Navigate to BarListActivity when clicked
-            val intent = Intent(requireContext(), BarListActivity::class.java)
-            startActivity(intent)
-        }
-
-        mapButton.setOnClickListener {
-            val intent = Intent(requireContext(), MapActivity::class.java)
-            startActivity(intent)
         }
     }
 }

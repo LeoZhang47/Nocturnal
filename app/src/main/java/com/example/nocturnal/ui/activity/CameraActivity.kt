@@ -20,6 +20,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class CameraActivity : AppCompatActivity() {
 
@@ -48,6 +49,28 @@ class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        // Set Camera as the selected item
+        bottomNavigationView.selectedItemId = R.id.navigation_camera
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_bar -> {
+                    startActivity(Intent(this, BarListActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    true
+                }
+                R.id.navigation_camera -> true  // Already on Camera screen
+                R.id.navigation_map -> {
+                    startActivity(Intent(this, MapActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    true
+                }
+                else -> false
+            }
+        }
 
         // Initialize permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
