@@ -16,11 +16,16 @@ import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.content.Intent
 import com.example.nocturnal.R
+import android.widget.FrameLayout
+import androidx.compose.ui.platform.ComposeView
+
+
 
 class BarListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bar_list)
+        setContentView(R.layout.activity_bar_list) // Ensures layout is set with BottomNavigationView
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         // Set Bar List as the selected item
@@ -42,16 +47,16 @@ class BarListActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        setContent {
+
+        // Set content for ComposeView
+        findViewById<ComposeView>(R.id.composable_container).setContent {
             val navController = rememberNavController()
             val viewModel: BarListViewModel by viewModels { BarListViewModel.Factory }
             NavHost(navController = navController, startDestination = "list") {
                 composable("list") { BarListView(navController) }
                 composable("barDetail/{barID}") { backStackEntry ->
                     val barID = backStackEntry.arguments?.getString("barID")
-                    // get bar from ID
-                    val bar : Bar? = viewModel.getBarByID(barID)
-
+                    val bar: Bar? = barID?.let { viewModel.getBarByID(it) }
                     BarDetailScreen(bar)
                 }
             }
