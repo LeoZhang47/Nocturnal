@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.activity.BarListActivity
 import com.example.nocturnal.ui.activity.CameraActivity
-import com.example.nocturnal.ui.activity.MapActivity
 
 class MediaSelectionFragment : Fragment() {
 

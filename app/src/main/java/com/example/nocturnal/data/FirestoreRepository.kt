@@ -109,6 +109,41 @@ class FirestoreRepository {
 //            .addOnFailureListener { exception -> onFailure(exception) }
     }
 
+//    fun getNearestBar(onResult: (Bar?) -> Unit, onError: (Exception) -> Unit) {
+//        // Step 1: Retrieve the user's current location
+//        val userLocation = LocationService(context).getCurrentLocation()
+//
+//        if (userLocation != null) {
+//            // Step 2: Fetch bars from Firestore
+//            db.collection("bars").get()
+//                .addOnSuccessListener { result ->
+//                    var nearestBar: Bar? = null
+//                    var shortestDistance = Double.MAX_VALUE
+//
+//                    for (document in result) {
+//                        val barGeoPoint = document.getGeoPoint("location")
+//                        if (barGeoPoint != null) {
+//                            // Convert GeoPoint to Point for distance calculation
+//                            val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
+//                            val distance = userLocation.distanceTo(barLocation)
+//
+//                            // Update the nearest bar if this one is closer
+//                            if (distance < shortestDistance) {
+//                                shortestDistance = distance
+//                                nearestBar = document.toObject(Bar::class.java).copy(id = document.id)
+//                            }
+//                        }
+//                    }
+//                    onResult(nearestBar)
+//                }
+//                .addOnFailureListener { exception ->
+//                    onError(exception)
+//                }
+//        } else {
+//            onError(Exception("User location is not available"))
+//        }
+//    }
+
     fun getUserPosts(uid: String, onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
         val userImagesRef = storageRef.child("images/$uid/")
 
