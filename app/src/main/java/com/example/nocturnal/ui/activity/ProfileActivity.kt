@@ -43,24 +43,16 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
-        repository.getUserPosts(uid,
-            onSuccess = { imageUrls ->
-                setContent {
-                    MaterialTheme {
-                        ProfileScreen(
-                            imageUrls = imageUrls,
-                            onBackClick = { finish() },
-                            fragmentManager = supportFragmentManager,
-                            profileActivity = this,
-                            onChangeProfilePicture = { launchCameraForProfilePicture() }
-                        )
-                    }
-                }
-            },
-            onFailure = { e ->
-                e.printStackTrace()
+        setContent {
+            MaterialTheme {
+                ProfileScreen(
+                    onBackClick = { finish() },
+                    fragmentManager = supportFragmentManager,
+                    profileActivity = this,
+                    onChangeProfilePicture = { launchCameraForProfilePicture() }
+                )
             }
-        )
+        }
     }
 
     private fun launchCameraForProfilePicture() {

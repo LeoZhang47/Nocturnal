@@ -22,6 +22,7 @@ import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import android.util.Log
+import androidx.compose.runtime.livedata.observeAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +30,7 @@ fun ProfileScreen(
     onBackClick: () -> Unit,
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
-    imageUrls: List<String>,
+    //imageUrls: List<String>,
     userViewModel: UserViewModel = viewModel(),
     onChangeProfilePicture: () -> Unit
 ) {
@@ -48,6 +49,8 @@ fun ProfileScreen(
         }
     }
 
+    val imageUrls by userViewModel.imageUrls.observeAsState(emptyList())
+
     var showDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
     var newUsername by remember { mutableStateOf("") }
@@ -58,6 +61,7 @@ fun ProfileScreen(
     var scoreErrorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        userViewModel.getUserPosts()
         userViewModel.getUserScore(
             onSuccess = { score -> userScore = score },
             onFailure = { error -> scoreErrorMessage = error }

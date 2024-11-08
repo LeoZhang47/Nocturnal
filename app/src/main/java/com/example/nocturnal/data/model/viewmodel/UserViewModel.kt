@@ -9,7 +9,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 class UserViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -154,6 +155,29 @@ class UserViewModel : ViewModel() {
             onSuccess = { url -> onSuccess(url) },
             onFailure = { exception -> onFailure(exception) }
         )
+    }
+
+    private val _imageUrls = MutableLiveData<List<String>>()
+    val imageUrls: LiveData<List<String>> get() = _imageUrls
+
+    fun getUserPosts() {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            repository.getUserPosts(
+                uid,
+                onSuccess = { urls ->
+                    _imageUrls.value = urls  // Update LiveData with retrieved image URLs
+                },
+                onFailure = { exception ->
+                    Log.e("UserViewModel", "Failed to retrieve user posts: ${exception.message}")
+                    _imageUrls.value = emptyList() // Set empty list on failure
+                }
+            )
+        } else {
+            Log.e("UserViewModel", "No user logged in")
+            _imageUrls.value = emptyList() // Set empty list if no user is logged in
+        }
     }
 }
 
