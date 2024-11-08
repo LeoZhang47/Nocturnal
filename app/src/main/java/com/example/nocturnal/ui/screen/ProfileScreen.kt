@@ -29,21 +29,16 @@ fun ProfileScreen(
     onBackClick: () -> Unit,
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
-    imageUrls: List<String>, // Add image URLs parameter
+    imageUrls: List<String>,
     userViewModel: UserViewModel = viewModel(),
     onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
-
-    // If currentUser is null, handle it with a fallback (e.g., "Guest")
     val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow("Guest")
     val username by usernameFlow.collectAsState()
 
-    // User profile picture state
     var profilePictureUrl by remember { mutableStateOf<String?>(null) }
 
-
-    // Fetch the profile picture URL when ProfileScreen is composed
     LaunchedEffect(currentUser) {
         currentUser?.uid?.let { uid ->
             userViewModel.getUserProfilePicture(uid,
@@ -53,19 +48,15 @@ fun ProfileScreen(
         }
     }
 
-    // Track dialog visibility and the entered username and password
     var showDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
     var newUsername by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var passwordErrorMessage by remember { mutableStateOf("") }
-
-    // User score state
     var userScore by remember { mutableStateOf(0) }
     var scoreErrorMessage by remember { mutableStateOf("") }
 
-    // Fetch the user score when ProfileScreen is composed
     LaunchedEffect(Unit) {
         userViewModel.getUserScore(
             onSuccess = { score -> userScore = score },
@@ -88,121 +79,105 @@ fun ProfileScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Profile header section with buttons
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top)
-            ) {
-                // Display Profile Picture
-                Image(
-                    painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(8.dp),
-                    contentScale = ContentScale.Crop
-                )
-
-                // "Profile" Heading
-                Text(
-                    text = username,
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center
-                )
-
-                // Display user score (Placeholder)
-                Text(
-                    text = "Score: ${userScore}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center
-                )
-
-                // Change Username Button
-                Button(
-                    onClick = { showDialog = true },
+            item {
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Change Username")
-                }
+                    Image(
+                        painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.size(100.dp).padding(8.dp),
+                        contentScale = ContentScale.Crop
+                    )
 
-                // Change Profile Picture Button
-                Button(
-                    onClick = { onChangeProfilePicture() },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(text = "Change PFP")
-                }
+                    Text(
+                        text = username,
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center
+                    )
 
-                // Change Password Button
-                Button(
-                    onClick = { showPasswordDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(text = "Change Password")
-                }
+                    Text(
+                        text = "Score: ${userScore}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
 
-                // Log Out Button
-                Button(
-                    onClick = {
-                        userViewModel.signOut()
-                        profileActivity.logOutAndNavigateToLogin()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(text = "Log Out")
+                    Button(
+                        onClick = { showDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = "Change Username")
+                    }
+
+                    Button(
+                        onClick = { onChangeProfilePicture() },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = "Change PFP")
+                    }
+
+                    Button(
+                        onClick = { showPasswordDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = "Change Password")
+                    }
+
+                    Button(
+                        onClick = {
+                            userViewModel.signOut()
+                            profileActivity.logOutAndNavigateToLogin()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(text = "Log Out")
+                    }
                 }
             }
 
-            // Check if there are images to display
-            if (imageUrls.isNotEmpty()) {
-                Text(
-                    text = "Your Images",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-
-                // Display user images
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(imageUrls) { imageUrl ->
-                        Image(
-                            painter = rememberAsyncImagePainter(imageUrl),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+            item {
+                if (imageUrls.isNotEmpty()) {
+                    Text(
+                        text = "Your Images",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 10.dp)
+                    )
+                } else {
+                    Text(
+                        text = "No images available",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-            } else {
-                // Show a placeholder or message if there are no images
-                Text(
-                    text = "No images available",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+            }
+
+            items(imageUrls) { imageUrl ->
+                Image(
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
 
-        // Dialog for entering new username
+        // Existing dialog code for changing username and password
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
@@ -249,7 +224,6 @@ fun ProfileScreen(
             )
         }
 
-        // Dialog for entering new password
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
@@ -261,7 +235,7 @@ fun ProfileScreen(
                             onValueChange = { newPassword = it },
                             label = { Text("Enter new password") },
                             singleLine = true,
-                            visualTransformation = PasswordVisualTransformation() // Mask the input
+                            visualTransformation = PasswordVisualTransformation()
                         )
                         if (passwordErrorMessage.isNotEmpty()) {
                             Text(
