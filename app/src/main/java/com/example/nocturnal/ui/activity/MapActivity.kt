@@ -10,12 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.nocturnal.R
 import com.example.nocturnal.data.model.distanceTo
-import com.example.nocturnal.ui.activity.BarListActivity
-import com.example.nocturnal.ui.activity.CameraActivity
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
-import com.mapbox.maps.plugin.locationcomponent.location
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MapActivity : AppCompatActivity() {
@@ -28,7 +25,7 @@ class MapActivity : AppCompatActivity() {
         setContentView(R.layout.activity_map)
 
         mapView = findViewById(R.id.mapView)
-        locationService = LocationService()
+        locationService = LocationService(this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.navigation_map
@@ -77,14 +74,13 @@ class MapActivity : AppCompatActivity() {
     }
 
     private fun startLocationUpdates() {
-        locationService.startLocationUpdates { listener ->
-            mapView.location.updateSettings { enabled = true }
-            mapView.location.addOnIndicatorPositionChangedListener(listener)
-        }
+        locationService.startLocationUpdates()
 
         // Observe location updates and zoom into user's current location
         locationService.locationLiveData.observe(this) { point ->
-            zoomToCurrentLocation(point)
+            if (point != null) {
+                zoomToCurrentLocation(point)
+            }
         }
     }
 

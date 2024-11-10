@@ -53,6 +53,10 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-base:18.2.0")
+
 
     implementation(libs.androidx.core.ktx)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1") // Check for the latest version
@@ -60,6 +64,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.mapbox.maps:android:11.7.1")
     implementation("com.mapbox.extension:maps-compose:11.7.1")
+
+
     // implementation("com.mapbox.maps:plugin-locationcomponent:11.6.0")
     implementation("com.karumi:dexter:6.2.3")
     implementation(libs.androidx.lifecycle.runtime.ktx)

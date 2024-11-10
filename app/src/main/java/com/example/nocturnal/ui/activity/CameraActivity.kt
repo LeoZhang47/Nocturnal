@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
 import com.example.nocturnal.R
+import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.example.nocturnal.ui.fragment.MediaSelectionFragment
 import java.io.File
 import java.io.IOException
@@ -28,6 +30,7 @@ class CameraActivity : AppCompatActivity() {
 
     // Define the permission launcher
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var barListViewModel: BarListViewModel
 
     // Define the picture launcher
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -48,6 +51,7 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        barListViewModel = ViewModelProvider(this, BarListViewModel.Factory)[BarListViewModel::class.java]
         setContentView(R.layout.activity_camera)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)

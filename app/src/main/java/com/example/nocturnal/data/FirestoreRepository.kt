@@ -1,14 +1,13 @@
 package com.example.nocturnal.data
 
-import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.Post
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
 import android.net.Uri
-
-import java.util.UUID
+import com.example.nocturnal.data.model.distanceTo
+import com.mapbox.geojson.Point
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -93,56 +92,67 @@ class FirestoreRepository {
             }
     }
 
-    fun storePost(media: String, timestamp: Date, uid: String /*, onSuccess: () -> Unit, onFailure: (Exception) -> Unit*/) {
-        val media = hashMapOf("media" to media, "timestamp" to timestamp, "user" to uid)
-        db.collection("posts").document()
-            .set(media)
-//            .addOnSuccessListener { onSuccess() }
-//            .addOnFailureListener { exception -> onFailure(exception) }
+
+    fun storePost(
+        media: String,
+        timestamp: Date,
+        uid: String,
+        barID: String,
+        onSuccess: (postId: String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val postData = hashMapOf(
+            "media" to media,
+            "timestamp" to timestamp,
+            "user" to uid,
+            "bar" to barID
+        )
+
+        // Generate a document reference for the post
+        val postRef = db.collection("posts").document()
+
+        // Set the data and handle the success and failure cases
+        postRef.set(postData)
+            .addOnSuccessListener {
+                // Return the postId back to the caller
+                onSuccess(postRef.id)
+            }
+            .addOnFailureListener { exception ->
+                // Handle the error and pass the exception to the failure callback
+                onFailure(exception)
+            }
     }
 
-    fun storePost(media: String, timestamp: Date, uid: String, barID: String /*, onSuccess: () -> Unit, onFailure: (Exception) -> Unit*/) {
-        val media = hashMapOf("media" to media, "timestamp" to timestamp, "user" to uid, "bar" to barID)
-        db.collection("posts").document()
-            .set(media)
-//            .addOnSuccessListener { onSuccess() }
-//            .addOnFailureListener { exception -> onFailure(exception) }
-    }
 
-//    fun getNearestBar(onResult: (Bar?) -> Unit, onError: (Exception) -> Unit) {
-//        // Step 1: Retrieve the user's current location
-//        val userLocation = LocationService(context).getCurrentLocation()
-//
-//        if (userLocation != null) {
-//            // Step 2: Fetch bars from Firestore
-//            db.collection("bars").get()
-//                .addOnSuccessListener { result ->
-//                    var nearestBar: Bar? = null
-//                    var shortestDistance = Double.MAX_VALUE
-//
-//                    for (document in result) {
-//                        val barGeoPoint = document.getGeoPoint("location")
-//                        if (barGeoPoint != null) {
-//                            // Convert GeoPoint to Point for distance calculation
-//                            val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
-//                            val distance = userLocation.distanceTo(barLocation)
-//
-//                            // Update the nearest bar if this one is closer
-//                            if (distance < shortestDistance) {
-//                                shortestDistance = distance
-//                                nearestBar = document.toObject(Bar::class.java).copy(id = document.id)
-//                            }
-//                        }
-//                    }
-//                    onResult(nearestBar)
-//                }
-//                .addOnFailureListener { exception ->
-//                    onError(exception)
-//                }
-//        } else {
-//            onError(Exception("User location is not available"))
-//        }
-//    }
+    // Fetch the nearest bar based on the provided location
+    fun getNearestBar(userLocation: Point, onResult: (Bar?) -> Unit, onError: (Exception) -> Unit) {
+        // Step 2: Fetch bars from Firestore
+        db.collection("bars").get()
+            .addOnSuccessListener { result ->
+                var nearestBar: Bar? = null
+                var shortestDistance = Double.MAX_VALUE
+
+                // Iterate through all bars and find the nearest one
+                for (document in result) {
+                    val barGeoPoint = document.getGeoPoint("location")
+                    if (barGeoPoint != null) {
+                        // Convert GeoPoint to Point for distance calculation
+                        val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
+                        val distance = userLocation.distanceTo(barLocation)
+
+                        // Update the nearest bar if this one is closer
+                        if (distance < shortestDistance) {
+                            shortestDistance = distance
+                            nearestBar = document.toObject(Bar::class.java).copy(id = document.id)
+                        }
+                    }
+                }
+                onResult(nearestBar) // Return the nearest bar
+            }
+            .addOnFailureListener { exception ->
+                onError(exception) // Handle errors
+            }
+    }
 
     fun getUserPosts(uid: String, onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
         val userImagesRef = storageRef.child("images/$uid/")
@@ -223,5 +233,11 @@ class FirestoreRepository {
             }
     }
 
+    fun updateBarPostIds(barId: String, postId: String, onComplete: (Boolean, Exception?) -> Unit) {
+        val barRef = db.collection("bars").document(barId)
+        barRef.update("postIDs", com.google.firebase.firestore.FieldValue.arrayUnion(postId))
+            .addOnSuccessListener { onComplete(true, null) }
+            .addOnFailureListener { exception -> onComplete(false, exception) }
+    }
 
 }
