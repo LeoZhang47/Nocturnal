@@ -84,9 +84,8 @@ class CameraActivity : AppCompatActivity() {
         // Initialize permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.CAMERA] == true) {
-                if (intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)) {
-                    capturePhoto()
-                }
+                // Directly capture the photo if permission is granted
+                capturePhoto()
             }
         }
 

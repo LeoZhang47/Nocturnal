@@ -23,6 +23,7 @@ class MediaSelectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         // Find button from the layout
         val pictureButton: Button = view.findViewById(R.id.picture_button)
 
