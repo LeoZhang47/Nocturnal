@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.FirestoreRepository
 import com.example.nocturnal.data.model.Post
+import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,18 +34,31 @@ class BarListViewModel(
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
 
+    private var lastLocation: Point? = null
+
     init {
         startLocationUpdates()  // Start location updates when ViewModel is created
-        fetchBars()
         fetchPosts()
     }
 
     private fun startLocationUpdates() {
         locationService.startLocationUpdates()
-        // Observe location updates from LocationService
+
+        // Observe location updates from LocationService (only once)
         locationService.locationLiveData.observeForever { location ->
             location?.let {
-                fetchNearestBar(it)
+                if (lastLocation == null) {
+                    fetchBars(it)
+                    fetchNearestBar(it)
+                    lastLocation = it
+                } else {
+                    val distance = location.distanceTo(lastLocation!!)
+                    if (distance > 0.1) {  // 0.1 mile threshold
+                        fetchBars(it)
+                        fetchNearestBar(it)
+                        lastLocation = it
+                    }
+                }
             }
         }
     }
@@ -65,9 +79,11 @@ class BarListViewModel(
         }
     }
 
-    private fun fetchBars() {
+    // Fetch bars within range based on user location
+    fun fetchBars(userLocation: Point) {
         viewModelScope.launch {
-            repository.getBars(
+            repository.getBarsWithinRange(
+                userLocation = userLocation,
                 onResult = { barsList ->
                     _bars.value = barsList
                 },
@@ -99,6 +115,12 @@ class BarListViewModel(
         return _posts.value.find { it.id == id }
     }
 
+    // Make sure to remove observer when ViewModel is cleared to avoid memory leaks
+    override fun onCleared() {
+        super.onCleared()
+        locationService.locationLiveData.removeObserver { location -> }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -110,7 +132,6 @@ class BarListViewModel(
                 val applicationContext = extras[APPLICATION_KEY]?.applicationContext
                 val locationService = applicationContext?.let { LocationService(it) }
 
-                // Return BarListViewModel with FirestoreRepository and LocationService
                 return BarListViewModel(
                     repository = FirestoreRepository(),
                     savedStateHandle = savedStateHandle,
@@ -120,3 +141,4 @@ class BarListViewModel(
         }
     }
 }
+
