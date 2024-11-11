@@ -56,9 +56,6 @@ class MapActivity : AppCompatActivity() {
 
         // Initialize the LocationComponent with custom puck
         initLocationComponent()
-
-        // Request location permissions and start location updates
-        requestLocationPermissionAndInitLocation()
     }
 
     private fun initLocationComponent() {
@@ -70,40 +67,6 @@ class MapActivity : AppCompatActivity() {
                 shadowImage = ImageHolder.from(R.drawable.ic_shadow_puck),
                 topImage = ImageHolder.from(R.drawable.ic_location_puck)
             )
-        }
-    }
-
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            startLocationUpdates()
-        }
-    }
-
-    private fun requestLocationPermissionAndInitLocation() {
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                startLocationUpdates()
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-        }
-    }
-
-    private fun startLocationUpdates() {
-        locationService.startLocationUpdates()
-
-        // Observe location updates and zoom into user's current location
-        locationService.locationLiveData.observe(this) { point ->
-            if (point != null) {
-                zoomToCurrentLocation(point)
-            }
         }
     }
 
