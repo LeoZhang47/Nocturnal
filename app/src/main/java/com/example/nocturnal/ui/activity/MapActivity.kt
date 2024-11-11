@@ -51,6 +51,15 @@ class MapActivity : AppCompatActivity() {
         requestLocationPermissionAndInitLocation()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        // Set Camera as the selected item when returning to CameraActivity
+        bottomNavigationView.selectedItemId = R.id.navigation_map
+    }
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->

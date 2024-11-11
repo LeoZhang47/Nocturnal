@@ -102,6 +102,16 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        // Set Camera as the selected item when returning to CameraActivity
+        bottomNavigationView.selectedItemId = R.id.navigation_camera
+    }
+
+
     // Inflate the settings menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.camera_menu, menu)
