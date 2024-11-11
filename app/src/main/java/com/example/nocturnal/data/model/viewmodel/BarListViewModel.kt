@@ -67,14 +67,19 @@ class BarListViewModel(
 
     private fun fetchBars() {
         viewModelScope.launch {
-            repository.getBars(
-                onResult = { barsList ->
-                    _bars.value = barsList
-                },
-                onError = { e ->
-                    e.printStackTrace()
+            locationService.locationLiveData.observeForever { userLocation ->
+                userLocation?.let {
+                    repository.getBarsWithinRange(
+                        userLocation = userLocation,
+                        onResult = { barsList ->
+                            _bars.value = barsList
+                        },
+                        onError = { e ->
+                            e.printStackTrace()
+                        }
+                    )
                 }
-            )
+            }
         }
     }
 
