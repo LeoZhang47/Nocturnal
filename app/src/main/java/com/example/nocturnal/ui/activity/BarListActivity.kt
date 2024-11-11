@@ -1,13 +1,10 @@
 package com.example.nocturnal.ui.activity
 
-import BarDetailScreen
-import BarListView
+import com.example.nocturnal.ui.screen.BarDetailScreen
+import com.example.nocturnal.ui.screen.BarListView
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,7 +13,6 @@ import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.content.Intent
 import com.example.nocturnal.R
-import android.widget.FrameLayout
 import androidx.compose.ui.platform.ComposeView
 
 
