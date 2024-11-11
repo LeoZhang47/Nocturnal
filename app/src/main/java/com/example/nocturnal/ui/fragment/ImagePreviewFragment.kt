@@ -18,9 +18,12 @@ import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import java.util.Date
 import android.util.Log
 import kotlin.math.*
+import com.example.nocturnal.data.model.viewmodel.CameraViewModel
+import androidx.fragment.app.activityViewModels
 
 class ImagePreviewFragment : Fragment() {
 
+    private val cameraViewModel: CameraViewModel by activityViewModels()
     private lateinit var postViewModel: PostViewModel
     private lateinit var barListViewModel: BarListViewModel
     private lateinit var locationService: LocationService
@@ -77,9 +80,6 @@ class ImagePreviewFragment : Fragment() {
             }
         }
 
-        // Variable to store if the user is within 0.3 miles of a bar
-        var isWithinRange = false
-
         // Observe nearestBar to determine if the user is within 0.3 miles
         barListViewModel.nearestBar.observe(viewLifecycleOwner) { nearestBar ->
             nearestBar?.location?.let { barLocation ->
@@ -92,20 +92,21 @@ class ImagePreviewFragment : Fragment() {
                         barLocation.longitude
                     )
 
-                    // Update isWithinRange based on the distance
-                    isWithinRange = distance <= 0.3
+                    // Update isWithinRange in SharedViewModel based on the distance
+                    val isWithinRange = distance <= 0.5
+                    cameraViewModel.setWithinRange(isWithinRange)
 
                     Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
                 }
             } ?: run {
-                isWithinRange = false
+                cameraViewModel.setWithinRange(false)  // No bar nearby, so set to false
                 Log.d("NearestBar", "No bar found nearby")
             }
         }
 
         // Set up postButton click listener
         postButton.setOnClickListener {
-            if (isWithinRange) {
+            if (cameraViewModel.isWithinRange.value == true) {
                 // If within range, proceed with posting
                 saveMediaToFirestore(imageUri)
                 requireActivity().supportFragmentManager.popBackStack()
@@ -119,7 +120,6 @@ class ImagePreviewFragment : Fragment() {
             }
         }
     }
-
 
 
 

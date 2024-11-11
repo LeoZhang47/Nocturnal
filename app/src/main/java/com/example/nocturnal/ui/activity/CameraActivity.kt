@@ -23,8 +23,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.graphics.Color
+import com.example.nocturnal.data.model.viewmodel.CameraViewModel
+import androidx.activity.viewModels
 
 class CameraActivity : AppCompatActivity() {
+
+    private val cameraViewModel: CameraViewModel by viewModels()
 
     private var mediaUri: Uri? = null
 
@@ -92,7 +97,15 @@ class CameraActivity : AppCompatActivity() {
         }
 
         // Set up the ActionBar to include the settings menu
-        setSupportActionBar(findViewById(R.id.toolbar))
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Observe isWithinRange from SharedViewModel to update toolbar color
+        cameraViewModel.isWithinRange.observe(this) { isWithinRange ->
+            if (isWithinRange) {
+                toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
+            }
+        }
 
         // Load the MediaSelectionFragment by default
         if (savedInstanceState == null) {
