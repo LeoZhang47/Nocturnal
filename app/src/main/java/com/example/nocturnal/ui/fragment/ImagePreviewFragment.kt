@@ -93,7 +93,7 @@ class ImagePreviewFragment : Fragment() {
                     )
 
                     // Update isWithinRange in SharedViewModel based on the distance
-                    val isWithinRange = distance <= 0.5
+                    val isWithinRange = distance <= 0.3
                     cameraViewModel.setWithinRange(isWithinRange)
 
                     Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
