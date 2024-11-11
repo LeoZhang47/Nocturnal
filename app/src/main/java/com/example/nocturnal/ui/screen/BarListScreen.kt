@@ -1,8 +1,8 @@
-import android.icu.util.Calendar
+package com.example.nocturnal.ui.screen
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,8 +26,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
-import com.google.type.Date
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -91,15 +93,36 @@ fun BarDetailScreen(bar: Bar?) {
         if (bar != null) {
             Text(text = bar.name, style = MaterialTheme.typography.headlineMedium)
 
-//            val lat = bar.location?.latitude
-//            val lng = bar.location?.longitude
-//            if (lat != null && lng != null) {
-//                Text(text = "Location: Lat: $lat, Lng: $lng")
-//            } else {
-//                Text(text = "Location: Unknown")
-//            }
+            val currentDate = LocalDate.now(ZoneId.of("America/New_York"))
 
-            if (bar.postIDs.isEmpty()) {
+            val today6AM = currentDate.atTime(LocalTime.of(6, 0))
+                .atZone(ZoneId.of("America/New_York")).toInstant()
+            val yesterday6AM = currentDate.minusDays(1)
+                .atTime(LocalTime.of(6, 0)).atZone(ZoneId.of("America/New_York"))
+                    .toInstant()
+            val currentInstant = Instant.now().atZone(ZoneId.of("America/New_York")).toInstant()
+            val currentTime = currentInstant.atZone(ZoneId.of("America/New_York")).toLocalTime()
+
+            val startTime: Instant = if (currentTime.isBefore(LocalTime.of(6, 0))) {
+                yesterday6AM
+            } else {
+                today6AM
+            }
+
+
+            val postIDs: ArrayList<String> = ArrayList()
+            for (postID in bar.postIDs) {
+                val post = viewModel.getPostById(postID)
+                if (post != null) {
+                    val timestamp = post.timestamp
+                    val instant = timestamp.toDate().toInstant()
+
+                    if (instant.isAfter(startTime)) {
+                        postIDs.add(0, postID)
+                    }
+                }
+            }
+            if (postIDs.isEmpty()) {
                 Text(text = "No one has posted yet. Be the first!")
             } else {
                 // Display images
@@ -107,7 +130,7 @@ fun BarDetailScreen(bar: Bar?) {
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(bar.postIDs) { postID ->
+                    items(postIDs) { postID ->
                         // get instance of post from postID
                         val post = viewModel.getPostById(postID)
                         // set imageUrl to post.media
