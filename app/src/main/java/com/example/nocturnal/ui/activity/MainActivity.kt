@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.nocturnal.R
 import com.example.nocturnal.ui.fragment.LoginFragment
 import com.google.firebase.auth.FirebaseAuth
-import com.example.nocturnal.ui.activity.MainScreenActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         // Check if the user is already logged in
         if (auth.currentUser != null) {
             // User is logged in, navigate to MainScreenActivity
-            val intent = Intent(this, MainScreenActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
             finish()  // Close MainActivity so it doesn't remain in the back stack
             return
