@@ -14,10 +14,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.content.Intent
 import com.example.nocturnal.R
 import androidx.compose.ui.platform.ComposeView
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 class BarListActivity : AppCompatActivity() {
+    private val barListViewModel: BarListViewModel by viewModels { BarListViewModel.Factory }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bar_list) // Ensures layout is set with BottomNavigationView
@@ -47,12 +49,11 @@ class BarListActivity : AppCompatActivity() {
         // Set content for ComposeView
         findViewById<ComposeView>(R.id.composable_container).setContent {
             val navController = rememberNavController()
-            val viewModel: BarListViewModel by viewModels { BarListViewModel.Factory }
             NavHost(navController = navController, startDestination = "list") {
                 composable("list") { BarListView(navController) }
                 composable("barDetail/{barID}") { backStackEntry ->
                     val barID = backStackEntry.arguments?.getString("barID")
-                    val bar: Bar? = barID?.let { viewModel.getBarByID(it) }
+                    val bar: Bar? = barID?.let { barListViewModel.getBarByID(it) }
                     BarDetailScreen(bar)
                 }
             }
@@ -61,7 +62,6 @@ class BarListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         // Set Camera as the selected item when returning to CameraActivity
