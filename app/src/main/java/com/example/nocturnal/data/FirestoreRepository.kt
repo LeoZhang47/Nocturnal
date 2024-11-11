@@ -8,6 +8,8 @@ import java.util.Date
 import android.net.Uri
 import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
+import android.util.Log
+
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -147,7 +149,9 @@ class FirestoreRepository {
                         }
                     }
                 }
+
                 onResult(nearestBar) // Return the nearest bar
+
             }
             .addOnFailureListener { exception ->
                 onError(exception) // Handle errors

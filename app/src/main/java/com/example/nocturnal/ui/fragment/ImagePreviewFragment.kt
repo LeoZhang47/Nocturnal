@@ -16,6 +16,8 @@ import com.example.nocturnal.R
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import java.util.Date
+import android.util.Log
+import kotlin.math.*
 
 class ImagePreviewFragment : Fragment() {
 
@@ -66,18 +68,60 @@ class ImagePreviewFragment : Fragment() {
         }
 
         val postButton: Button = view.findViewById(R.id.post_button)
-        postButton.setOnClickListener {
-            saveMediaToFirestore(imageUri)
-            requireActivity().supportFragmentManager.popBackStack()
-        }
 
-        // Observe location updates and fetch the nearest bar based on location
+        // Observe location updates and call fetchNearestBar
         locationService.locationLiveData.observe(viewLifecycleOwner) { userLocation ->
             userLocation?.let {
+                // Fetch the nearest bar based on user location
                 barListViewModel.fetchNearestBar(it)
             }
         }
+
+        // Variable to store if the user is within 0.3 miles of a bar
+        var isWithinRange = false
+
+        // Observe nearestBar to determine if the user is within 0.3 miles
+        barListViewModel.nearestBar.observe(viewLifecycleOwner) { nearestBar ->
+            nearestBar?.location?.let { barLocation ->
+                val userLocation = locationService.locationLiveData.value
+                userLocation?.let { location ->
+                    val distance = calculateDistance(
+                        location.latitude(),
+                        location.longitude(),
+                        barLocation.latitude,
+                        barLocation.longitude
+                    )
+
+                    // Update isWithinRange based on the distance
+                    isWithinRange = distance <= 0.3
+
+                    Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
+                }
+            } ?: run {
+                isWithinRange = false
+                Log.d("NearestBar", "No bar found nearby")
+            }
+        }
+
+        // Set up postButton click listener
+        postButton.setOnClickListener {
+            if (isWithinRange) {
+                // If within range, proceed with posting
+                saveMediaToFirestore(imageUri)
+                requireActivity().supportFragmentManager.popBackStack()
+            } else {
+                // If not within range, show a toast message
+                Toast.makeText(
+                    requireContext(),
+                    "You are not within 0.3 miles of a bar",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
+
+
+
 
     private fun saveMediaToFirestore(imageUri: String?) {
         imageUri?.let {
@@ -123,6 +167,19 @@ class ImagePreviewFragment : Fragment() {
                 // Toast.makeText(requireActivity(), "Failed to update bar: ${exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        Log.d("DistanceCalculation", "lat1: $lat1, lon1: $lon1, lat2: $lat2, lon2: $lon2")
+
+        val earthRadiusMiles = 3958.8 // Earth radius in miles
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return earthRadiusMiles * c
     }
 }
 
