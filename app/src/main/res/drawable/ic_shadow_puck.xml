@@ -1,9 +1,12 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="28dp"
-    android:height="28dp"
-    android:viewportWidth="28"
-    android:viewportHeight="28">
-    <path
-        android:fillColor="#33000000"
-        android:pathData="M 14, 0 A 14, 14 0 1, 1 13.9, 0 Z"/>
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="#33000000"/> <!-- Semi-transparent shadow -->
+            <corners android:radius="24dp"/>
+            <size
+                android:width="40dp"
+                android:height="40dp"/>
+        </shape>
+    </item>
+</layer-list>
