@@ -6,6 +6,6 @@ data class Bar(
     val id: String ?= null,
     val name: String = "",
     val description: String = "",
-    val location: GeoPoint?= null,
+    val location: GeoPoint? = null,
     var postIDs: List<String> = emptyList()
 )

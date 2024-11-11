@@ -4,7 +4,7 @@ import com.mapbox.geojson.Point
 import kotlin.math.*
 
 fun Point.distanceTo(other: Point): Double {
-    val earthRadius = 6371000.0 // Radius of Earth in meters
+    val earthRadius = 3958.8 // Radius of Earth in meters
     val lat1 = this.latitude()
     val lon1 = this.longitude()
     val lat2 = other.latitude()

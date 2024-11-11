@@ -20,6 +20,8 @@ import android.util.Log
 import kotlin.math.*
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.fragment.app.activityViewModels
+import com.example.nocturnal.data.model.distanceTo
+import com.mapbox.geojson.Point
 
 class ImagePreviewFragment : Fragment() {
 
@@ -85,12 +87,8 @@ class ImagePreviewFragment : Fragment() {
             nearestBar?.location?.let { barLocation ->
                 val userLocation = locationService.locationLiveData.value
                 userLocation?.let { location ->
-                    val distance = calculateDistance(
-                        location.latitude(),
-                        location.longitude(),
-                        barLocation.latitude,
-                        barLocation.longitude
-                    )
+                    val barPoint = Point.fromLngLat(barLocation.longitude, barLocation.latitude)
+                    val distance = location.distanceTo(barPoint)
 
                     // Update isWithinRange in SharedViewModel based on the distance
                     val isWithinRange = distance <= 0.3
@@ -167,19 +165,6 @@ class ImagePreviewFragment : Fragment() {
                 // Toast.makeText(requireActivity(), "Failed to update bar: ${exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        Log.d("DistanceCalculation", "lat1: $lat1, lon1: $lon1, lat2: $lat2, lon2: $lon2")
-
-        val earthRadiusMiles = 3958.8 // Earth radius in miles
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = sin(dLat / 2) * sin(dLat / 2) +
-                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
-                sin(dLon / 2) * sin(dLon / 2)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return earthRadiusMiles * c
     }
 }
 

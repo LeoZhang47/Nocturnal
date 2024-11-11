@@ -109,7 +109,7 @@ class MapActivity : AppCompatActivity() {
 
     private fun zoomToCurrentLocation(point: Point) {
         val currentCameraPosition = mapView.mapboxMap.cameraState.center
-        if (point.distanceTo(currentCameraPosition) > 10.0) {
+        if (point.distanceTo(currentCameraPosition) > 0.1) {
             mapView.mapboxMap.setCamera(
                 CameraOptions.Builder()
                     .center(point)
