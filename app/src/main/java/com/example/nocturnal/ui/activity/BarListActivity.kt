@@ -1,7 +1,7 @@
 package com.example.nocturnal.ui.activity
 
-import BarDetailScreen
-import BarListView
+import com.example.nocturnal.ui.screen.BarDetailScreen
+import com.example.nocturnal.ui.screen.BarListView
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
