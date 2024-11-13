@@ -6,6 +6,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,12 +23,20 @@ import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.plugin.LocationPuck2D
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.nocturnal.ui.activity.CameraActivity.Companion.MIN_DISTANCE
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
-class MapActivity : AppCompatActivity() {
+class MapActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private lateinit var mapView: MapView
     private lateinit var locationService: LocationService
+
+    private lateinit var gestureDetector: GestureDetector
+    private var x1 = 0.0f
+    private var x2 = 0.0f
+    private var y1 = 0.0f
+    private var y2 = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +44,7 @@ class MapActivity : AppCompatActivity() {
 
         mapView = findViewById(R.id.mapView)
         locationService = LocationService(this)
+        gestureDetector = GestureDetector(this, this)
 
         // Initialize the BottomNavigationView
         setupBottomNavigation()
@@ -126,6 +137,50 @@ class MapActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event != null) {
+            gestureDetector.onTouchEvent(event)
+        }
+        when (event?.action) {
+            0 -> {
+                x1=event.x
+                y1=event.y
+            }
+            1 -> {
+                x2=event.x
+                y2 = event.y
+                val valueX = x2-x1
+                if (abs(valueX) > MIN_DISTANCE) {
+                    if (x2 > x1) {
+                        startActivity(Intent(this, CameraActivity::class.java))
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+                    }
+                }
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onLongPress(e: MotionEvent) { }
+
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        return false
+    }
+
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        return false
+    }
+
+    override fun onShowPress(e: MotionEvent) {}
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001

@@ -27,9 +27,12 @@ import android.graphics.Color
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.activity.viewModels
 import LocationService
+import android.view.GestureDetector
+import android.view.MotionEvent
 import com.mapbox.geojson.Point
+import kotlin.math.abs
 
-class CameraActivity : AppCompatActivity() {
+class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private val cameraViewModel: CameraViewModel by viewModels()
     private lateinit var locationService: LocationService
@@ -38,7 +41,18 @@ class CameraActivity : AppCompatActivity() {
     // Define the permission launchers
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<String>
+
     private lateinit var barListViewModel: BarListViewModel
+    private lateinit var gestureDetector: GestureDetector
+    private var x1 = 0.0f
+    private var x2 = 0.0f
+    private var y1 = 0.0f
+    private var y2 = 0.0f
+
+    companion object {
+        const val MIN_DISTANCE = 150
+    }
+
 
     // Define the picture launcher
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -63,6 +77,7 @@ class CameraActivity : AppCompatActivity() {
         setContentView(R.layout.activity_camera)
 
         locationService = LocationService(this)
+        this.gestureDetector = GestureDetector(this, this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -248,4 +263,51 @@ class CameraActivity : AppCompatActivity() {
         toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
     }
 
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event != null) {
+            gestureDetector.onTouchEvent(event)
+        }
+        when (event?.action) {
+            0 -> {
+                x1=event.x
+                y1=event.y
+            }
+            1 -> {
+                x2=event.x
+                y2 = event.y
+                val valueX = x2-x1
+                if (abs(valueX) > MIN_DISTANCE) {
+                    if (x2 > x1) {
+                        startActivity(Intent(this, BarListActivity::class.java))
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+                    } else {
+                        startActivity(Intent(this, MapActivity::class.java))
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                    }
+                }
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onLongPress(e: MotionEvent) { }
+
+    override fun onFling( e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        return false
+    }
+
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        return false
+    }
+
+    override fun onShowPress(e: MotionEvent) {}
 }
