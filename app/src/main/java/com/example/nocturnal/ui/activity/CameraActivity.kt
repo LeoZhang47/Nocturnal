@@ -119,7 +119,10 @@ class CameraActivity : AppCompatActivity() {
         cameraViewModel.isWithinRange.observe(this) { isWithinRange ->
             if (isWithinRange) {
                 toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
+            } else {
+                toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
             }
+
         }
 
         // Load the MediaSelectionFragment by default
@@ -132,6 +135,9 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -201,6 +207,13 @@ class CameraActivity : AppCompatActivity() {
             replace(R.id.fragment_container, ImagePreviewFragment.newInstance(uri.toString()))
             addToBackStack(null)
         }
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                // This code runs once the back stack is empty after popBackStack()
+                // Place any code here that you want to run after popBackStack completes
+                onBackStackPopped()
+            }
+        }
     }
 
     private fun setResultAndFinish(uri: Uri) {
@@ -228,4 +241,11 @@ class CameraActivity : AppCompatActivity() {
             // Handle location update (e.g., logging or other UI updates)
         }
     }
+
+    // Function to handle actions after popBackStack completes
+    private fun onBackStackPopped() {
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
+    }
+
 }
