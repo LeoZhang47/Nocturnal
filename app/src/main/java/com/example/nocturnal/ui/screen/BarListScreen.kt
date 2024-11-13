@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -26,6 +27,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
+import com.mapbox.geojson.Point
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -58,7 +60,7 @@ fun BarListView(navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         ) {
             items(bars) { bar ->
-                BarItem(bar = bar, onBarClick = {
+                BarItem(bar = bar, viewModel = viewModel, onBarClick = {
                     navController.navigate("barDetail/${bar.id}")
                 })
             }
@@ -67,7 +69,16 @@ fun BarListView(navController: NavHostController) {
 }
 
 @Composable
-fun BarItem(bar: Bar, onBarClick: () -> Unit) {
+fun BarItem(bar: Bar, viewModel: BarListViewModel, onBarClick: () -> Unit) {
+
+    val barLocation = bar.location?.let {
+        Point.fromLngLat(
+            it.longitude,
+            bar.location.latitude
+        )
+    }
+    val distanceToBar = barLocation?.let { viewModel.getDistanceToBar(it) }
+
     Button(
         onClick = onBarClick,
         modifier = Modifier
@@ -77,6 +88,9 @@ fun BarItem(bar: Bar, onBarClick: () -> Unit) {
     ) {
         Column {
             Text(text = bar.name, fontSize = 20.sp)
+            distanceToBar?.let { Text(text = it, fontSize = 14.sp, modifier = Modifier.align(
+                Alignment.CenterHorizontally)) }
+
         }
     }
 }
