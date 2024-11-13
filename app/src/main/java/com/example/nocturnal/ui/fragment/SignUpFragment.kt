@@ -77,6 +77,11 @@ class SignUpFragment : Fragment() {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Make all text smaller in landscape mode
             binding.signupMessage.visibility = View.GONE
+            binding.email.layoutParams = (binding.email.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                topMargin = 4 // Set margin to 4dp in landscape mode
+            }
+            binding.email.requestLayout()
+            //binding.email.setHorizontalBias(0.0f) // Set horizontal bias
             binding.signupMessage.textSize = 16f
             binding.email.textSize = 14f
             binding.username.textSize = 14f
