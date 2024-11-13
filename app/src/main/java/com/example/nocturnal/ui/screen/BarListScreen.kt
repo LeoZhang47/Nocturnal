@@ -12,8 +12,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -133,18 +135,35 @@ fun BarDetailScreen(bar: Bar?) {
                     items(postIDs) { postID ->
                         // get instance of post from postID
                         val post = viewModel.getPostById(postID)
+                        val username = remember { mutableStateOf<String?>(null) }
                         // set imageUrl to post.media
                         // Consider using Glide library for image loading
                         // https://stackoverflow.com/questions/33194477/display-default-image-in-imageview-if-no-image-returned-from-server
                         if (post != null) {
-                            Image(
-                                painter = rememberAsyncImagePainter(post.media),
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
+                            LaunchedEffect(post.userID) {
+                                username.value = viewModel.getUsername(post.userID) ?: "Unknown User"
+                            }
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .aspectRatio(16f / 9f)
-                            )
+                                    .padding(bottom = 16.dp)
+                            ) {
+                                Text(
+                                    text = username.value ?: "Loading username...",
+                                    modifier = Modifier.padding(8.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+
+                                // Display post image
+                                Image(
+                                    painter = rememberAsyncImagePainter(post.media),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                )
+                            }
                         } else {
                             Image(
                                 painter = painterResource(id = R.drawable.defaultimage),

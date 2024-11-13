@@ -8,6 +8,7 @@ import java.util.Date
 import android.net.Uri
 import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
+import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -90,6 +91,17 @@ class FirestoreRepository {
             .addOnFailureListener { exception ->
                 onFailure(exception)
             }
+    }
+
+    // Fetch username from Firestore using uid
+    suspend fun getUsername(uid: String): String? {
+        return try {
+            val documentSnapshot = db.collection("users").document(uid).get().await()
+            documentSnapshot.getString("username")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
 
