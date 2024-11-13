@@ -77,8 +77,8 @@ class FirestoreRepository {
                         id = document.id,
                         media = document.getString("media") ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2FDefaultImage.png?alt=media&token=6c8e7702-287a-4f08-8c41-9a09aeda8afc",
                         timestamp = document.getTimestamp("timestamp") ?: Timestamp.now(),
-                        userID = document.getString("userID") ?: "",
-                        barID = document.getString("barID") ?: ""
+                        userID = document.getString("user") ?: "",
+                        barID = document.getString("bar") ?: ""
                     )
                 }
                 onResult(postsList)
