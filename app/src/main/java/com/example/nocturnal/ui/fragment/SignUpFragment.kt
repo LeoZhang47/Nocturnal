@@ -1,18 +1,18 @@
 package com.example.nocturnal.ui.fragment
 
 import android.content.Intent
-import androidx.fragment.app.Fragment
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.example.nocturnal.R
 import com.example.nocturnal.databinding.FragmentSignUpBinding
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
-import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
-import android.widget.Toast
-import com.example.nocturnal.ui.fragment.LoginFragment
-import com.example.nocturnal.R
 
 class SignUpFragment : Fragment() {
 
@@ -37,9 +37,12 @@ class SignUpFragment : Fragment() {
         val confirmPasswordEditText = binding.confirmPassword
         val registerButton = binding.register
 
+        // Detect orientation and update layout or UI elements accordingly
+        adjustLayoutForOrientation(resources.configuration.orientation)
+
         registerButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val username = usernameEditText.text.toString()
+            val email = emailEditText.text.toString().trim()
+            val username = usernameEditText.text.toString().trim()
             val password = passwordEditText.text.toString()
             val confirmPassword = confirmPasswordEditText.text.toString()
 
@@ -49,6 +52,7 @@ class SignUpFragment : Fragment() {
                         userViewModel.storeUsername(uid, username)
                         userViewModel.storeScore(uid, 0)
                         Toast.makeText(context, "Registration successful", Toast.LENGTH_LONG).show()
+
                         // Navigate to CameraActivity
                         val intent = Intent(activity, CameraActivity::class.java)
                         startActivity(intent)
@@ -60,12 +64,41 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
             }
         }
+
         binding.switchToLogin.setOnClickListener {
             parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, LoginFragment())
-            .addToBackStack(null)
-            .commit()
+                .replace(R.id.fragment_container, LoginFragment())
+                .addToBackStack(null)
+                .commit()
         }
+    }
+
+    private fun adjustLayoutForOrientation(orientation: Int) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Make all text smaller in landscape mode
+            binding.signupMessage.visibility = View.GONE
+            binding.signupMessage.textSize = 16f
+            binding.email.textSize = 14f
+            binding.username.textSize = 14f
+            binding.password.textSize = 14f
+            binding.confirmPassword.textSize = 14f
+            binding.register.textSize = 14f
+            binding.switchToLogin.textSize = 12f
+        } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            // Reset text sizes for portrait mode
+            binding.signupMessage.textSize = 20f
+            binding.email.textSize = 16f
+            binding.username.textSize = 16f
+            binding.password.textSize = 16f
+            binding.confirmPassword.textSize = 16f
+            binding.register.textSize = 16f
+            binding.switchToLogin.textSize = 14f
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        adjustLayoutForOrientation(newConfig.orientation)
     }
 
     override fun onDestroyView() {
