@@ -21,14 +21,19 @@ import kotlin.math.*
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.fragment.app.activityViewModels
 import com.example.nocturnal.data.model.distanceTo
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.geojson.Point
 
 class ImagePreviewFragment : Fragment() {
 
     private val cameraViewModel: CameraViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
     private lateinit var postViewModel: PostViewModel
     private lateinit var barListViewModel: BarListViewModel
     private lateinit var locationService: LocationService
+
+    private val auth = FirebaseAuth.getInstance()
 
     companion object {
         private const val ARG_IMAGE_URI = "image_uri"
@@ -107,6 +112,17 @@ class ImagePreviewFragment : Fragment() {
             if (cameraViewModel.isWithinRange.value == true) {
                 // If within range, proceed with posting
                 saveMediaToFirestore(imageUri)
+                userViewModel.incrementUserScore(
+                    incrementBy = 1,  // or any other increment value
+                    onSuccess = {
+                        // Handle successful score increment, e.g., show a success message
+                    },
+                    onFailure = { errorMessage ->
+                        // Handle failure, e.g., show an error message
+                        Log.e("UserViewModel", "Error incrementing score: $errorMessage")
+                    }
+                )
+
                 requireActivity().supportFragmentManager.popBackStack()
             } else {
                 // If not within range, show a toast message
