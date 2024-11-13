@@ -16,9 +16,16 @@ import com.example.nocturnal.R
 import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import java.util.Date
+import android.util.Log
+import kotlin.math.*
+import com.example.nocturnal.data.model.viewmodel.CameraViewModel
+import androidx.fragment.app.activityViewModels
+import com.example.nocturnal.data.model.distanceTo
+import com.mapbox.geojson.Point
 
 class ImagePreviewFragment : Fragment() {
 
+    private val cameraViewModel: CameraViewModel by activityViewModels()
     private lateinit var postViewModel: PostViewModel
     private lateinit var barListViewModel: BarListViewModel
     private lateinit var locationService: LocationService
@@ -66,18 +73,53 @@ class ImagePreviewFragment : Fragment() {
         }
 
         val postButton: Button = view.findViewById(R.id.post_button)
-        postButton.setOnClickListener {
-            saveMediaToFirestore(imageUri)
-            requireActivity().supportFragmentManager.popBackStack()
-        }
 
-        // Observe location updates and fetch the nearest bar based on location
+        // Observe location updates and call fetchNearestBar
         locationService.locationLiveData.observe(viewLifecycleOwner) { userLocation ->
             userLocation?.let {
+                // Fetch the nearest bar based on user location
                 barListViewModel.fetchNearestBar(it)
             }
         }
+
+        // Observe nearestBar to determine if the user is within 0.3 miles
+        barListViewModel.nearestBar.observe(viewLifecycleOwner) { nearestBar ->
+            nearestBar?.location?.let { barLocation ->
+                val userLocation = locationService.locationLiveData.value
+                userLocation?.let { location ->
+                    val barPoint = Point.fromLngLat(barLocation.longitude, barLocation.latitude)
+                    val distance = location.distanceTo(barPoint)
+
+                    // Update isWithinRange in SharedViewModel based on the distance
+                    val isWithinRange = distance <= 0.3
+                    cameraViewModel.setWithinRange(isWithinRange)
+
+                    Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
+                }
+            } ?: run {
+                cameraViewModel.setWithinRange(false)  // No bar nearby, so set to false
+                Log.d("NearestBar", "No bar found nearby")
+            }
+        }
+
+        // Set up postButton click listener
+        postButton.setOnClickListener {
+            if (cameraViewModel.isWithinRange.value == true) {
+                // If within range, proceed with posting
+                saveMediaToFirestore(imageUri)
+                requireActivity().supportFragmentManager.popBackStack()
+            } else {
+                // If not within range, show a toast message
+                Toast.makeText(
+                    requireContext(),
+                    "You are not within 0.3 miles of a bar",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
+
+
 
     private fun saveMediaToFirestore(imageUri: String?) {
         imageUri?.let {

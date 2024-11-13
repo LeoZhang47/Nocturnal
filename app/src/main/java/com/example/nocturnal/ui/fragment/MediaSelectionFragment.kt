@@ -23,18 +23,13 @@ class MediaSelectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Find buttons from the layout
+
+        // Find button from the layout
         val pictureButton: Button = view.findViewById(R.id.picture_button)
-        val videoButton: Button = view.findViewById(R.id.video_button)
 
         // Set click listener for picture button
         pictureButton.setOnClickListener {
             (activity as CameraActivity).checkCameraPermission("image")
-        }
-
-        // Set click listener for video button
-        videoButton.setOnClickListener {
-            // Handle video recording logic
         }
     }
 }

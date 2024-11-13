@@ -23,13 +23,21 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.graphics.Color
+import com.example.nocturnal.data.model.viewmodel.CameraViewModel
+import androidx.activity.viewModels
+import LocationService
+import com.mapbox.geojson.Point
 
 class CameraActivity : AppCompatActivity() {
 
+    private val cameraViewModel: CameraViewModel by viewModels()
+    private lateinit var locationService: LocationService
     private var mediaUri: Uri? = null
 
-    // Define the permission launcher
+    // Define the permission launchers
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var locationPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var barListViewModel: BarListViewModel
 
     // Define the picture launcher
@@ -53,6 +61,8 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         barListViewModel = ViewModelProvider(this, BarListViewModel.Factory)[BarListViewModel::class.java]
         setContentView(R.layout.activity_camera)
+
+        locationService = LocationService(this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -79,9 +89,16 @@ class CameraActivity : AppCompatActivity() {
         // Initialize permission launcher
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.CAMERA] == true) {
-                if (intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)) {
-                    capturePhoto()
-                }
+                //if (intent.getBooleanExtra("EXTRA_PROFILE_PICTURE", false)) {
+                capturePhoto()
+                //}
+            }
+        }
+
+        // Initialize location permission launcher
+        locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startLocationUpdates()
             }
         }
 
@@ -91,8 +108,19 @@ class CameraActivity : AppCompatActivity() {
             checkCameraPermission("image")
         }
 
+        // Request location permission
+        requestLocationPermissionAndInitLocation()
+
         // Set up the ActionBar to include the settings menu
-        setSupportActionBar(findViewById(R.id.toolbar))
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Observe isWithinRange from SharedViewModel to update toolbar color
+        cameraViewModel.isWithinRange.observe(this) { isWithinRange ->
+            if (isWithinRange) {
+                toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
+            }
+        }
 
         // Load the MediaSelectionFragment by default
         if (savedInstanceState == null) {
@@ -110,7 +138,6 @@ class CameraActivity : AppCompatActivity() {
         // Set Camera as the selected item when returning to CameraActivity
         bottomNavigationView.selectedItemId = R.id.navigation_camera
     }
-
 
     // Inflate the settings menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -180,5 +207,25 @@ class CameraActivity : AppCompatActivity() {
         val resultIntent = Intent().apply { data = uri }
         setResult(RESULT_OK, resultIntent)
         finish()
+    }
+
+    private fun requestLocationPermissionAndInitLocation() {
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                startLocationUpdates()
+            }
+            else -> {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
+    }
+
+    private fun startLocationUpdates() {
+        locationService.startLocationUpdates()
+
+        // Observe location updates if needed
+        locationService.locationLiveData.observe(this) { point ->
+            // Handle location update (e.g., logging or other UI updates)
+        }
     }
 }

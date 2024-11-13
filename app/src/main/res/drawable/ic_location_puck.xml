@@ -1,9 +1,15 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="#FF4081"
-        android:pathData="M12,2a10,10 0,1 0,10 10A10,10 0,0 0,12 2z" />
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="#800080"/> <!-- Purple color for the puck -->
+            <corners android:radius="16dp"/> <!-- Rounded corners for the circle -->
+            <stroke
+                android:color="#FFFFFF"
+                android:width="2dp"/>
+            <size
+                android:width="24dp"
+                android:height="24dp"/>
+        </shape>
+    </item>
+</layer-list>

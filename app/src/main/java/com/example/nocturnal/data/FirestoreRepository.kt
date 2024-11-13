@@ -10,6 +10,7 @@ import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.tasks.await
 
+
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
     private val storageRef = FirebaseStorage.getInstance().reference
@@ -31,28 +32,41 @@ class FirestoreRepository {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
-    fun getBars(onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
+    fun getBarsWithinRange(userLocation: Point, onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
         db.collection("bars")
             .get()
             .addOnSuccessListener { result ->
-                val barsList = result.map { document ->
-                    Bar(
-                        id = document.id,
-                        name = document.getString("name") ?: "",
-                        location = document.getGeoPoint("location"),
-                        postIDs = if (document.get("postIDs") is List<*>) {
-                            (document.get("postIDs") as List<*>).filterIsInstance<String>()
+                // Filter the bars to only include those within 2 miles of the user's location
+                val nearbyBars = result.mapNotNull { document ->
+                    val barGeoPoint = document.getGeoPoint("location")
+                    if (barGeoPoint != null) {
+                        // Convert GeoPoint to Point for distance calculation
+                        val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
+                        val distance = userLocation.distanceTo(barLocation)
+
+                        // Only keep bars within 2 miles
+                        if (distance <= 0.5) {
+                            Bar(
+                                id = document.id,
+                                name = document.getString("name") ?: "",
+                                location = barGeoPoint,
+                                postIDs = (document.get("postIDs") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                            )
                         } else {
-                            emptyList()
+                            null
                         }
-                    )
+                    } else {
+                        null
+                    }
                 }
-                onResult(barsList)
+
+                onResult(nearbyBars) // Return the filtered list of nearby bars
             }
             .addOnFailureListener { exception ->
-                onError(exception)
+                onError(exception) // Handle errors
             }
     }
+
 
     fun getPosts(onResult: (List<Post>) -> Unit, onError: (Exception) -> Unit) {
         db.collection("posts")
@@ -159,7 +173,9 @@ class FirestoreRepository {
                         }
                     }
                 }
+
                 onResult(nearestBar) // Return the nearest bar
+
             }
             .addOnFailureListener { exception ->
                 onError(exception) // Handle errors
