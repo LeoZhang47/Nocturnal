@@ -1,5 +1,6 @@
 package com.example.nocturnal.ui.screen
 
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun BarListView(navController: NavHostController) {
@@ -162,10 +164,13 @@ fun BarDetailScreen(bar: Bar?) {
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp)
                             ) {
+                                val timestamp = post.timestamp.toDate()
+                                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
                                 Text(
-                                    text = username.value ?: "Loading username...",
+                                    text = "${username.value ?: "Loading username..."} posted at ${formatter.format(timestamp)}:",
                                     modifier = Modifier.padding(8.dp),
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 18.sp
                                 )
 
                                 // Display post image
