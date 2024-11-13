@@ -115,6 +115,22 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun incrementUserScore(incrementBy: Int = 1, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            repository.incrementUserScore(
+                uid = uid,
+                incrementBy = incrementBy,
+                onSuccess = { onSuccess() },
+                onFailure = { exception -> onFailure(exception.message ?: "Failed to increment score") }
+            )
+        } else {
+            onFailure("No user logged in")
+        }
+    }
+
+
     // Method to change the username
     fun changeUsername(newUsername: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         val currentUser = getCurrentUser()

@@ -32,6 +32,23 @@ class FirestoreRepository {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
+    fun incrementUserScore(uid: String, incrementBy: Int = 1, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userRef = db.collection("users").document(uid)
+
+        userRef.get()
+            .addOnSuccessListener { document ->
+                val currentScore = document.getLong("score")?.toInt() ?: 0
+                val newScore = currentScore + incrementBy
+
+                userRef.update("score", newScore)
+                    .addOnSuccessListener { onSuccess() }
+                    .addOnFailureListener { exception -> onFailure(exception) }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
     fun getBarsWithinRange(userLocation: Point, onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
         db.collection("bars")
             .get()
