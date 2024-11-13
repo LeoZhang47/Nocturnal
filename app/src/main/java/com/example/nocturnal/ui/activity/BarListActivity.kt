@@ -12,7 +12,10 @@ import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.content.Intent
+import android.graphics.Color
 import android.view.GestureDetector
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import com.example.nocturnal.R
 import androidx.compose.ui.platform.ComposeView
@@ -33,6 +36,11 @@ class BarListActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bar_list) // Ensures layout is set with BottomNavigationView
+
+        // Set up the ActionBar to include the settings menu
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -69,6 +77,24 @@ class BarListActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     BarDetailScreen(bar)
                 }
             }
+        }
+    }
+
+    // Inflate the settings menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.camera_menu, menu)
+        return true
+    }
+
+    // Handle the settings icon click
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                val intent = Intent(this, ProfileActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
