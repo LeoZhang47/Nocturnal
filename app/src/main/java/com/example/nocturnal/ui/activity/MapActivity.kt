@@ -5,8 +5,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.view.GestureDetector
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +45,11 @@ class MapActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
+        // Set up the ActionBar to include the settings menu
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
+
         mapView = findViewById(R.id.mapView)
         locationService = LocationService(this)
         gestureDetector = GestureDetector(this, this)
@@ -57,6 +65,24 @@ class MapActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
         // Check and request location permissions
         checkLocationPermissions()
+    }
+
+    // Inflate the settings menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.camera_menu, menu)
+        return true
+    }
+
+    // Handle the settings icon click
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                val intent = Intent(this, ProfileActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setupBottomNavigation() {
