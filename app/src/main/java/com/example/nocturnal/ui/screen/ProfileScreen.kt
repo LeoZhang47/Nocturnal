@@ -23,7 +23,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.Dialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,10 +102,12 @@ fun ProfileScreen(
                     Image(
                         painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
                         contentDescription = "Profile Picture",
-                        modifier = Modifier.size(100.dp).padding(8.dp),
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(8.dp)
+                            .clip(CircleShape), // Makes the image circular
                         contentScale = ContentScale.Crop
                     )
-
                     Text(
                         text = username,
                         style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
