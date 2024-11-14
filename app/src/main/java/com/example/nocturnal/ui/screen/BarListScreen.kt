@@ -264,12 +264,15 @@ fun PostDetailScreen(post: Post?) {
             val timestamp = post.timestamp.toDate()
             val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
-            Row (
+
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(8.dp)
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
+                    painter = rememberAsyncImagePainter(
+                        profilePicturePath ?: R.drawable.nocturnal_default_pfp
+                    ),
                     contentDescription = null,
                     modifier = Modifier.padding(end = 0.dp)
                         .height(40.dp)
@@ -290,6 +293,16 @@ fun PostDetailScreen(post: Post?) {
                     fontSize = 18.sp
                 )
             }
+
+            Image(
+                painter = rememberAsyncImagePainter(post.media),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize(1f)
+            )
+
+
+
         } else {
             Text(text = "Post not found", style = MaterialTheme.typography.bodyMedium)
         }
