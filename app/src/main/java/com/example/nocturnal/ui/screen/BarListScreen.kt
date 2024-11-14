@@ -137,9 +137,17 @@ fun BarDetailScreen(bar: Bar?) {
                     items(postIDs) { postID ->
                         val post = viewModel.getPostById(postID)
                         val username = remember { mutableStateOf<String?>(null) }
+                        var profilePicturePath by remember { mutableStateOf<String?>(null) }
                         if (post != null) {
                             LaunchedEffect(post.userID) {
                                 username.value = viewModel.getUsername(post.userID) ?: "Unknown User"
+
+                                post.userID.let { uid ->
+                                    viewModel.getUserProfilePicture(uid,
+                                        onSuccess = { url -> profilePicturePath = url },
+                                        onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                                    )
+                                }
                             }
                             Column(
                                 modifier = Modifier
@@ -148,12 +156,30 @@ fun BarDetailScreen(bar: Bar?) {
                             ) {
                                 val timestamp = post.timestamp.toDate()
                                 val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                                Text(
-                                    text = "${username.value ?: "Loading username..."} posted at ${formatter.format(timestamp)}:",
-                                    modifier = Modifier.padding(8.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 18.sp
-                                )
+                                Row (
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(end = 0.dp)
+                                            .height(40.dp)
+                                    )
+                                    Text(
+                                        text = "@${username.value ?: "Loading username..."}",
+                                        modifier = Modifier.padding(8.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = formatter.format(timestamp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                }
+
 
                                 ExpandableImage(imageUrl = post.media)
                             }
