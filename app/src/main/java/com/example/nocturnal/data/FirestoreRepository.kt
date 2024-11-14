@@ -61,8 +61,8 @@ class FirestoreRepository {
                         val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
                         val distance = userLocation.distanceTo(barLocation)
 
-                        // Only keep bars within 2 miles
-                        if (distance <= 0.5) {
+                        // Only keep bars within 1 mile
+                        if (distance <= 1) {
                             Bar(
                                 id = document.id,
                                 name = document.getString("name") ?: "",

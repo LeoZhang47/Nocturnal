@@ -87,7 +87,7 @@ class ImagePreviewFragment : Fragment() {
             }
         }
 
-        // Observe nearestBar to determine if the user is within 0.3 miles
+        // Observe nearestBar to determine if the user is within 0.1 miles
         barListViewModel.nearestBar.observe(viewLifecycleOwner) { nearestBar ->
             nearestBar?.location?.let { barLocation ->
                 val userLocation = locationService.locationLiveData.value
@@ -96,7 +96,7 @@ class ImagePreviewFragment : Fragment() {
                     val distance = location.distanceTo(barPoint)
 
                     // Update isWithinRange in SharedViewModel based on the distance
-                    val isWithinRange = distance <= 0.3
+                    val isWithinRange = distance <= 0.1
                     cameraViewModel.setWithinRange(isWithinRange)
 
                     Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
@@ -128,7 +128,7 @@ class ImagePreviewFragment : Fragment() {
                 // If not within range, show a toast message
                 Toast.makeText(
                     requireContext(),
-                    "You are not within 0.3 miles of a bar",
+                    "You are not within 0.1 miles of a bar",
                     Toast.LENGTH_SHORT
                 ).show()
             }
