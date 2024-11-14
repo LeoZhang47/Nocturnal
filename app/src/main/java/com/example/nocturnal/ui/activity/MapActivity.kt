@@ -110,7 +110,7 @@ class MapActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         mapView.location.apply {
             enabled = true
             locationPuck = LocationPuck2D(
-                bearingImage = ImageHolder.from(R.drawable.ic_bearing_puck),
+                bearingImage = null, /* ImageHolder.from(R.drawable.ic_bearing_puck) */
                 shadowImage = ImageHolder.from(R.drawable.ic_shadow_puck),
                 topImage = ImageHolder.from(R.drawable.ic_location_puck)
             )
