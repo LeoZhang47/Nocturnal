@@ -20,7 +20,9 @@ import android.view.MotionEvent
 import com.example.nocturnal.R
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nocturnal.data.model.Post
 import com.example.nocturnal.ui.activity.CameraActivity.Companion.MIN_DISTANCE
+import com.example.nocturnal.ui.screen.PostDetailScreen
 import kotlin.math.abs
 
 
@@ -74,7 +76,12 @@ class BarListActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                 composable("barDetail/{barID}") { backStackEntry ->
                     val barID = backStackEntry.arguments?.getString("barID")
                     val bar: Bar? = barID?.let { barListViewModel.getBarByID(it) }
-                    BarDetailScreen(bar)
+                    BarDetailScreen(bar, navController)
+                }
+                composable("postDetail/{postID}") { backStackEntry ->
+                    val postID = backStackEntry.arguments?.getString("postID")
+                    val post: Post? = postID?.let {barListViewModel.getPostById(it)}
+                    PostDetailScreen(post)
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.example.nocturnal.ui.screen
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
 import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Post
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.mapbox.geojson.Point
 import java.time.Instant
@@ -103,7 +105,7 @@ fun BarItem(bar: Bar, viewModel: BarListViewModel, onBarClick: () -> Unit) {
 }
 
 @Composable
-fun BarDetailScreen(bar: Bar?) {
+fun BarDetailScreen(bar: Bar?, navController: NavHostController) {
     val viewModel: BarListViewModel = viewModel(
         factory = remember { BarListViewModel.Factory }
     )
@@ -186,8 +188,7 @@ fun BarDetailScreen(bar: Bar?) {
                                         painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
                                         contentDescription = null,
                                         modifier = Modifier.padding(end = 0.dp)
-                                            .height(40.dp),
-                                        contentScale = ContentScale.Crop
+                                            .height(40.dp)
                                     )
 
                                     Text(
@@ -214,6 +215,7 @@ fun BarDetailScreen(bar: Bar?) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .aspectRatio(16f / 9f)
+                                        .clickable{ navController.navigate("postDetail/${postID}") }
                                 )
                             }
                         } else {
@@ -232,6 +234,64 @@ fun BarDetailScreen(bar: Bar?) {
 
         } else {
             Text(text = "Bar not found", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun PostDetailScreen(post: Post?) {
+    val viewModel: BarListViewModel = viewModel(
+        factory = remember { BarListViewModel.Factory }
+    )
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+        if (post != null) {
+            val username = remember { mutableStateOf<String?>(null) }
+            var profilePicturePath by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(post.userID) {
+                username.value = viewModel.getUsername(post.userID) ?: "Unknown User"
+
+                post.userID.let { uid ->
+                    viewModel.getUserProfilePicture(uid,
+                        onSuccess = { url -> profilePicturePath = url },
+                        onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                    )
+                }
+            }
+
+            val timestamp = post.timestamp.toDate()
+            val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 0.dp)
+                        .height(40.dp)
+                )
+
+                Text(
+                    text = "@${username.value ?: "Loading username..."}",
+                    modifier = Modifier.padding(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = formatter.format(timestamp),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 18.sp
+                )
+            }
+        } else {
+            Text(text = "Post not found", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
