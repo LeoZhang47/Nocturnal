@@ -4,6 +4,8 @@ import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -152,26 +155,56 @@ fun BarDetailScreen(bar: Bar?) {
                         // get instance of post from postID
                         val post = viewModel.getPostById(postID)
                         val username = remember { mutableStateOf<String?>(null) }
+                        var profilePicturePath by remember { mutableStateOf<String?>(null) }
                         // set imageUrl to post.media
                         // Consider using Glide library for image loading
                         // https://stackoverflow.com/questions/33194477/display-default-image-in-imageview-if-no-image-returned-from-server
                         if (post != null) {
                             LaunchedEffect(post.userID) {
                                 username.value = viewModel.getUsername(post.userID) ?: "Unknown User"
+
+                                post.userID.let { uid ->
+                                    viewModel.getUserProfilePicture(uid,
+                                        onSuccess = { url -> profilePicturePath = url },
+                                        onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                                    )
+                                }
                             }
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 16.dp)
+                                    .padding(bottom = 8.dp)
                             ) {
                                 val timestamp = post.timestamp.toDate()
                                 val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                                Text(
-                                    text = "${username.value ?: "Loading username..."} posted at ${formatter.format(timestamp)}:",
-                                    modifier = Modifier.padding(8.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 18.sp
-                                )
+                                Row (
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(8.dp)
+                                    ) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(end = 0.dp)
+                                            .height(40.dp),
+                                        contentScale = ContentScale.Crop
+                                    )
+
+                                    Text(
+                                        text = "@${username.value ?: "Loading username..."}",
+                                        modifier = Modifier.padding(8.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = formatter.format(timestamp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                }
 
                                 // Display post image
                                 Image(

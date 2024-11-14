@@ -127,6 +127,14 @@ class BarListViewModel(
         return repository.getUsername(userID)
     }
 
+    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        repository.getUserProfilePicture(
+            uid,
+            onSuccess = { url -> onSuccess(url) },
+            onFailure = { exception -> onFailure(exception) }
+        )
+    }
+
     // Make sure to remove observer when ViewModel is cleared to avoid memory leaks
     override fun onCleared() {
         super.onCleared()
