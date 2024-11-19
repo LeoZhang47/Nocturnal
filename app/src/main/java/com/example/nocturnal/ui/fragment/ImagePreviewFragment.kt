@@ -26,6 +26,7 @@ import com.example.nocturnal.data.model.distanceTo
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.geojson.Point
+import android.graphics.Color
 
 class ImagePreviewFragment : DialogFragment() {
 
@@ -87,6 +88,15 @@ class ImagePreviewFragment : DialogFragment() {
             userLocation?.let {
                 // Fetch the nearest bar based on user location
                 barListViewModel.fetchNearestBar(it)
+            }
+        }
+
+        // Observe isWithinRange to update the button color
+        cameraViewModel.isWithinRange.observe(viewLifecycleOwner) { isWithinRange ->
+            if (isWithinRange == true) {
+                postButton.setBackgroundColor(Color.parseColor("#16ad02"))
+            } else {
+                //postButton.setBackgroundColor(requireContext().getColor(R.color.gray)) // Replace with your default color resource
             }
         }
 
