@@ -135,8 +135,9 @@ class ImagePreviewFragment : DialogFragment() {
                         Log.e("UserViewModel", "Error incrementing score: $errorMessage")
                     }
                 )
-
                 requireActivity().supportFragmentManager.popBackStack()
+                // Close the ImagePreviewFragment
+                dismiss()
             } else {
                 // If not within range, show a toast message
                 Toast.makeText(
