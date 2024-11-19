@@ -2,6 +2,7 @@ package com.example.nocturnal.ui.fragment
 
 import LocationService
 import PostViewModel
+import android.app.Dialog
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import java.util.Date
 import android.util.Log
+import androidx.fragment.app.DialogFragment
 import kotlin.math.*
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.fragment.app.activityViewModels
@@ -25,7 +27,7 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.geojson.Point
 
-class ImagePreviewFragment : Fragment() {
+class ImagePreviewFragment : DialogFragment() {
 
     private val cameraViewModel: CameraViewModel by activityViewModels()
     private val userViewModel: UserViewModel by activityViewModels()
@@ -78,6 +80,7 @@ class ImagePreviewFragment : Fragment() {
         }
 
         val postButton: Button = view.findViewById(R.id.post_button)
+        val cancelButton: Button = view.findViewById(R.id.cancel_button)
 
         // Observe location updates and call fetchNearestBar
         locationService.locationLiveData.observe(viewLifecycleOwner) { userLocation ->
@@ -133,9 +136,19 @@ class ImagePreviewFragment : Fragment() {
                 ).show()
             }
         }
+        cancelButton.setOnClickListener {
+            dismiss()
+        }
     }
 
-
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            // Customize dialog properties (e.g., full-screen, cancelable, etc.)
+            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            isCancelable = true
+            setCanceledOnTouchOutside(true)
+        }
+    }
 
     private fun saveMediaToFirestore(imageUri: String?) {
         imageUri?.let {
