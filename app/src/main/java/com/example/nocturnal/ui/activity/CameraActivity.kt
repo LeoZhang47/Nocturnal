@@ -144,13 +144,14 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         // Set up the ActionBar to include the settings menu
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
 
         // Observe isWithinRange from SharedViewModel to update toolbar color
         cameraViewModel.isWithinRange.observe(this) { isWithinRange ->
             if (isWithinRange) {
-                toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
+                //toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
             } else {
-                toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
+                //toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
             }
 
         }
@@ -165,9 +166,6 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     override fun onResume() {
         super.onResume()
-
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -262,13 +260,6 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             // Handle location update (e.g., logging or other UI updates)
         }
     }
-
-    // Function to handle actions after popBackStack completes
-    private fun onBackStackPopped() {
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
-    }
-
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
