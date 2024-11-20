@@ -51,17 +51,17 @@ class SignUpFragment : Fragment() {
                     if (isSuccess && uid != null) {
                         userViewModel.storeUsername(uid, username)
                         userViewModel.storeScore(uid, 0)
-                        Toast.makeText(context, "Registration successful", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, R.string.registration_successful, Toast.LENGTH_LONG).show()
 
                         // Navigate to CameraActivity
                         val intent = Intent(activity, CameraActivity::class.java)
                         startActivity(intent)
                     } else {
-                        Toast.makeText(context, "Registration failed: $errorMessage", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, getString(R.string.registration_failed_print_error_msg, errorMessage), Toast.LENGTH_LONG).show()
                     }
                 }
             } else {
-                Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, R.string.password_mismatch, Toast.LENGTH_LONG).show()
             }
         }
 

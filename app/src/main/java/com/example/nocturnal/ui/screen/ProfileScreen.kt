@@ -26,6 +26,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +40,7 @@ fun ProfileScreen(
     onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
-    val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow("Guest")
+    val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow(stringResource(R.string.guest))
     val username by usernameFlow.collectAsState()
 
     var profilePictureUrl by remember { mutableStateOf<String?>(null) }
@@ -75,12 +76,12 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Back") },
+                title = { Text(stringResource(R.string.back)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_back_24px),
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -101,7 +102,7 @@ fun ProfileScreen(
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
-                        contentDescription = "Profile Picture",
+                        contentDescription = stringResource(R.string.profile_picture),
                         modifier = Modifier
                             .size(100.dp)
                             .padding(8.dp)
@@ -115,7 +116,7 @@ fun ProfileScreen(
                     )
 
                     Text(
-                        text = "Score: ${userScore}",
+                        text = stringResource(R.string.score_template, userScore),
                         style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center
                     )
@@ -125,7 +126,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(text = "Change Username")
+                        Text(text = stringResource(R.string.change_username))
                     }
 
                     Button(
@@ -133,7 +134,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(text = "Change PFP")
+                        Text(text = stringResource(R.string.change_pfp))
                     }
 
                     Button(
@@ -141,7 +142,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(text = "Change Password")
+                        Text(text = stringResource(R.string.change_password))
                     }
 
                     Button(
@@ -152,7 +153,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(text = "Log Out")
+                        Text(text = stringResource(R.string.logout))
                     }
                 }
             }
@@ -160,14 +161,14 @@ fun ProfileScreen(
             item {
                 if (imageUrls.isNotEmpty()) {
                     Text(
-                        text = "Your Images",
+                        text = stringResource(R.string.your_images),
                         style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(vertical = 10.dp)
                     )
                 } else {
                     Text(
-                        text = "No images available",
+                        text = stringResource(R.string.no_images),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
@@ -184,13 +185,13 @@ fun ProfileScreen(
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text(text = "Change Username") },
+                title = { Text(text = stringResource(R.string.change_username)) },
                 text = {
                     Column {
                         TextField(
                             value = newUsername,
                             onValueChange = { newUsername = it },
-                            label = { Text("Enter new username") },
+                            label = { Text(stringResource(R.string.enter_new_username)) },
                             singleLine = true
                         )
                         if (errorMessage.isNotEmpty()) {
@@ -216,12 +217,12 @@ fun ProfileScreen(
                             )
                         }
                     }) {
-                        Text("Submit")
+                        Text(stringResource(R.string.submit))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -230,13 +231,13 @@ fun ProfileScreen(
         if (showPasswordDialog) {
             AlertDialog(
                 onDismissRequest = { showPasswordDialog = false },
-                title = { Text(text = "Change Password") },
+                title = { Text(text = stringResource(R.string.change_password)) },
                 text = {
                     Column {
                         TextField(
                             value = newPassword,
                             onValueChange = { newPassword = it },
-                            label = { Text("Enter new password") },
+                            label = { Text(stringResource(R.string.enter_new_password)) },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation()
                         )
@@ -260,12 +261,12 @@ fun ProfileScreen(
                             onFailure = { error -> passwordErrorMessage = error }
                         )
                     }) {
-                        Text("Submit")
+                        Text(stringResource(R.string.submit))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showPasswordDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -280,7 +281,7 @@ fun ExpandableImage(imageUrl: String) {
     // Thumbnail image with click to open popup
     Image(
         painter = rememberAsyncImagePainter(imageUrl),
-        contentDescription = "Expandable image",
+        contentDescription = stringResource(R.string.expandable_image),
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(16f / 9f)
@@ -293,7 +294,7 @@ fun ExpandableImage(imageUrl: String) {
         Dialog(onDismissRequest = { isPopupOpen.value = false }) {
             Image(
                 painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = "Full-screen image",
+                contentDescription = stringResource(R.string.fullscreen_image),
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable { isPopupOpen.value = false }, // Dismiss on click
