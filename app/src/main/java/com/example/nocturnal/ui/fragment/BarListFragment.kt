@@ -41,4 +41,17 @@ class BarListFragment : Fragment() {
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshBars()
+    }
+
+    private fun refreshBars() {
+        viewModel.locationService.getLastKnownLocation { location ->
+            location?.let {
+                viewModel.fetchBars(it)
+            }
+        }
+    }
+
 }

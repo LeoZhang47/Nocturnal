@@ -54,4 +54,8 @@ class LocationService(context: Context) {
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
+
+    fun getLastKnownLocation(callback: (Point?) -> Unit) {
+        locationLiveData.value?.let { callback(it) } ?: callback(null)
+    }
 }

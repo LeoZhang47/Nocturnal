@@ -80,7 +80,7 @@ class BarListViewModel(
     }
 
     // Fetch bars within range based on user location
-    private fun fetchBars(userLocation: Point) {
+    fun fetchBars(userLocation: Point) {
         viewModelScope.launch {
             repository.getBarsWithinRange(
                 userLocation = userLocation,
@@ -102,7 +102,7 @@ class BarListViewModel(
         return null
     }
 
-    private fun fetchPosts() {
+    fun fetchPosts() {
         viewModelScope.launch {
             repository.getPosts(
                 onResult = { postsList ->
