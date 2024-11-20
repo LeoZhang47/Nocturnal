@@ -25,7 +25,6 @@
     <string name="post_picture">Post Picture</string>
     <string name="barlist_button">Go to Bar List</string>
     <string name="map_button">Map Button</string>
-    <string name="barlist_header">Posts for %s</string>
     <string name="no_posts">No one has posted yet. Be the first!</string>
     <string name="unknown_user">Unknown User</string>
     <string name="username">\@%s</string>

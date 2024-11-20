@@ -50,7 +50,7 @@ fun BarListView(navController: NavHostController) {
             .padding(8.dp)
     ) {
         Text(
-            text = stringResource(R.string.barlist_header, formattedDate),
+            text = formattedDate,
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
