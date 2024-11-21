@@ -10,13 +10,14 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.FirestoreRepository
 import com.example.nocturnal.data.model.Post
 import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class BarListViewModel(
@@ -66,31 +67,24 @@ class BarListViewModel(
     // Fetches the nearest bar using the user's current location
     fun fetchNearestBar(location: Point) {
         viewModelScope.launch {
-            repository.getNearestBar(
-                userLocation = location,
-                onResult = { bar ->
-                    _nearestBar.postValue(bar)
-                },
-                onError = { e ->
-                    e.printStackTrace()
-                    _nearestBar.postValue(null)
-                }
-            )
+            try {
+                val nearestBar = repository.getNearestBar(location)
+                _nearestBar.postValue(nearestBar)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _nearestBar.postValue(null)
+            }
         }
     }
 
     // Fetch bars within range based on user location
     fun fetchBars(userLocation: Point) {
         viewModelScope.launch {
-            repository.getBarsWithinRange(
-                userLocation = userLocation,
-                onResult = { barsList ->
+            repository.getBarsWithinRange(userLocation)
+                .catch { e -> e.printStackTrace() }
+                .collect { barsList: List<Bar> ->
                     _bars.value = barsList
-                },
-                onError = { e ->
-                    e.printStackTrace()
                 }
-            )
         }
     }
 
@@ -104,14 +98,12 @@ class BarListViewModel(
 
     fun fetchPosts() {
         viewModelScope.launch {
-            repository.getPosts(
-                onResult = { postsList ->
-                    _posts.value = postsList
-                },
-                onError = { e ->
-                    e.printStackTrace()
-                }
-            )
+            try {
+                val postsList = repository.getPosts()
+                _posts.value = postsList
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -127,12 +119,12 @@ class BarListViewModel(
         return repository.getUsername(userID)
     }
 
-    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        repository.getUserProfilePicture(
-            uid,
-            onSuccess = { url -> onSuccess(url) },
-            onFailure = { exception -> onFailure(exception) }
-        )
+    suspend fun getUserProfilePicture(uid: String) {
+        try {
+            repository.getUserProfilePicture(uid)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     // Make sure to remove observer when ViewModel is cleared to avoid memory leaks

@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nocturnal.R
-import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import com.example.nocturnal.ui.screen.BarDetailScreen

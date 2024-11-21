@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
-import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.mapbox.geojson.Point
 import java.time.Instant
