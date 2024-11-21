@@ -16,7 +16,7 @@
         android:id="@+id/signup_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create your account on Nocturnal!"
+        android:text="@string/create_account"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
@@ -128,7 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Already have an account? Log in"
+        android:text="@string/has_account"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

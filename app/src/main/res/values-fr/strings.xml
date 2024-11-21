@@ -7,16 +7,19 @@
     <string name="prompt_password">Mot de passe</string>
     <string name="action_sign_in">Se connecter</string>
     <string name="action_sign_in_short">Se connecter</string>
-    <string name="welcome">"Bienvenue !"</string>
+    <string name="no_account">Vous n\'avez pas encore de compte ? Inscrivez-vous !</string>
+    <string name="create_account">Créer votre compte Nocturnal !</string>
+    <string name="has_account">Avez-vous déja une compte ? Connectez-vous !</string>
+    <string name="welcome">"Bonjour et bienvenue à Nocturnal !"</string>
     <string name="invalid_username">Identifiant non valide</string>
     <string name="invalid_password">Mot de passe doit être >5 caractères</string>
     <string name="login_failed">Connexion echouée</string>
     <string name="prompt_confirm_password">Confirmation de mot de passe</string>
-    <string name="action_register">Enregistrez-vous</string>
+    <string name="action_register">Inscrivez-vous</string>
     <string name="password_mismatch">Mots de passe ne correspondent pas</string>
-    <string name="registration_successful">Enrégistration réussie</string>
-    <string name="registration_failed">Enrégistration echouée</string>
-    <string name="registration_failed_print_error_msg">Enrégistration echouée: %s</string>
+    <string name="registration_successful">Inscription réussie</string>
+    <string name="registration_failed">Inscription echouée</string>
+    <string name="registration_failed_print_error_msg">Inscription echouée: %s</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Bonjour fragment vide</string>
     <string name="take_picture">Prendre une photo</string>
