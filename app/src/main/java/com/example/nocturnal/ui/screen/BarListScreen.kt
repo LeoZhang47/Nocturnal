@@ -41,7 +41,7 @@ fun BarListView(navController: NavHostController) {
 
     val bars by viewModel.bars.collectAsState()
     val currentDate = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_formatter))
     val formattedDate = currentDate.format(formatter)
 
     Column(
@@ -160,7 +160,7 @@ fun BarDetailScreen(bar: Bar?) {
                                     .padding(bottom = 16.dp)
                             ) {
                                 val timestamp = post.timestamp.toDate()
-                                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                                val formatter = SimpleDateFormat(stringResource(R.string.time_formatter), Locale.getDefault())
                                 Row (
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(8.dp)

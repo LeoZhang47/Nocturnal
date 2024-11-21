@@ -51,4 +51,6 @@
     <string name="post_added_confirmation">Post added to bar %s</string>
     <string name="no_nearby_bar">No nearby bar found</string>
     <string name="login_failed_print_error_msg">Login failed: %s</string>
+    <string name="date_formatter">MMMM dd, yyyy</string>
+    <string name="time_formatter">hh:mm a</string>
 </resources>
