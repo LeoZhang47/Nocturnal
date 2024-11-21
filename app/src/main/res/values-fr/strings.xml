@@ -56,4 +56,7 @@
     <string name="login_failed_print_error_msg">Connexion echoué: %s</string>
     <string name="date_formatter">dd MMMM, yyyy</string>
     <string name="time_formatter">HH:mm</string>
+    <string name="bars">Bars</string>
+    <string name="camera">Appareil</string>
+    <string name="map">Plan</string>
 </resources>

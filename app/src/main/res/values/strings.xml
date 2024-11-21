@@ -56,4 +56,7 @@
     <string name="login_failed_print_error_msg">Login failed: %s</string>
     <string name="date_formatter">MMMM dd, yyyy</string>
     <string name="time_formatter">hh:mm a</string>
+    <string name="bars">Bars</string>
+    <string name="camera">Camera</string>
+    <string name="map">Map</string>
 </resources>

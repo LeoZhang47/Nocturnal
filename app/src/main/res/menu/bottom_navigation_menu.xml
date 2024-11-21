@@ -3,13 +3,13 @@
     <item
         android:id="@+id/navigation_bar"
         android:icon="@drawable/ic_bar"
-        android:title="Bars" />
+        android:title="@string/bars" />
     <item
         android:id="@+id/navigation_camera"
         android:icon="@drawable/ic_camera"
-        android:title="Camera" />
+        android:title="@string/camera" />
     <item
         android:id="@+id/navigation_map"
         android:icon="@drawable/ic_map"
-        android:title="Map" />
+        android:title="@string/map" />
 </menu>
