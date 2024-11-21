@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import com.example.nocturnal.data.model.distanceTo
 
 
-class ExampleUnitTest {
+class PointUnitTest {
 
     @Test
     fun distanceTo_isCorrect() {
