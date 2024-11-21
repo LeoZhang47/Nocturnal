@@ -1,17 +1,22 @@
 package com.example.nocturnal
 
+import com.mapbox.geojson.Point
 import org.junit.Test
+import kotlin.test.assertEquals
+import com.example.nocturnal.data.model.distanceTo
 
-import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun distanceTo_isCorrect() {
+        // Create two Point objects
+        val point1 = Point.fromLngLat(-81.6944, 41.4993) // Cleveland, OH
+        val point2 = Point.fromLngLat(-83.0458, 42.3314) // Detroit, MI
+
+        // Calculate distance in miles
+        val distanceMiles = point1.distanceTo(point2)
+        // Verify the distance with a tolerance for floating-point arithmetic
+        assertEquals(90.18, distanceMiles, 0.1)
     }
 }

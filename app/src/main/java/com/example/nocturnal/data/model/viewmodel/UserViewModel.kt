@@ -12,9 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
-class UserViewModel : ViewModel() {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val repository = FirestoreRepository()
+class UserViewModel(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val repository: FirestoreRepository = FirestoreRepository()
+) : ViewModel() {
 
     fun loginUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
