@@ -39,7 +39,7 @@
     <string name="back">Back</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="guest">Guest</string>
-    <string name="score_template">Score: %i</string>
+    <string name="score_template">Score: %d</string>
     <string name="change_username">Change Username</string>
     <string name="change_pfp">Change PFP</string>
     <string name="change_password">Change Password</string>

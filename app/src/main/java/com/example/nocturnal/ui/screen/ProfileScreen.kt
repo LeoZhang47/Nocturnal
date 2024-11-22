@@ -42,21 +42,14 @@ fun ProfileScreen(
     val usernameFlow = remember { MutableStateFlow(guestName) }
     val username by usernameFlow.collectAsState()
 
-    var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+    val profilePicture by userViewModel.profilePictureUrl.collectAsState()
     val imageUrls by userViewModel.imageUrls.collectAsState(emptyList())
+
 
     // Fetch user profile picture URL when the user changes
     LaunchedEffect(currentUser) {
         currentUser?.uid?.let { uid ->
-            userViewModel.getUserProfilePicture(uid,
-                callback = { success, url ->
-                    profilePictureUrl = if (success) {
-                        url
-                    } else {
-                        null
-                    }
-                }
-            )
+            userViewModel.getUserProfilePicture(uid)
         }
     }
 
@@ -114,7 +107,7 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
+                        painter = rememberAsyncImagePainter(profilePicture ?: R.drawable.nocturnal_default_pfp),
                         contentDescription = stringResource(R.string.profile_picture),
                         modifier = Modifier
                             .size(100.dp)
@@ -220,7 +213,21 @@ fun ProfileScreen(
                     Button(onClick = {
                         currentUser?.uid?.let { uid ->
                             userViewModel.changeUsername(
-                                uid, newUsername
+                                uid, newUsername,
+                                callback = {success, msg ->
+                                    run {
+                                        if (success) {
+                                            userViewModel.getUsername(uid) { fetchedUsername ->
+                                                usernameFlow.value = fetchedUsername ?: "Guest"
+                                            }
+                                            showDialog = false
+                                            errorMessage = ""
+                                        } else {
+                                            errorMessage = msg
+                                        }
+
+                                    }
+                                }
                             )
                         }
                     }) {

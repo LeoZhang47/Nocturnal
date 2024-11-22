@@ -1,15 +1,11 @@
 package com.example.nocturnal.data.model.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nocturnal.data.FirestoreRepository
-import com.example.nocturnal.data.model.Bar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +16,9 @@ class UserViewModel : ViewModel() {
 
     private val _imageUrls = MutableStateFlow<List<String>>(emptyList())
     val imageUrls: StateFlow<List<String>> get() = _imageUrls
+
+    private val _profilePictureUrl = MutableStateFlow<String?>(null)
+    val profilePictureUrl: StateFlow<String?> = _profilePictureUrl
 
 //    private val _profilePicture = MutableLiveData<String>("")
 //    val profilePicture: LiveData<String> get() = _profilePicture
@@ -108,12 +107,17 @@ class UserViewModel : ViewModel() {
     }
 
     // Change username
-    fun changeUsername(uid: String, newUsername: String) {
+    fun changeUsername(uid: String, newUsername: String, callback: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             try {
                 repository.storeUsername(uid, newUsername)
+                callback(true, "")
             } catch (e: Exception) {
-                e.message?.let { Log.d("Error changing username:", it) }
+                e.message?.let {
+                    Log.d("Error changing username:", it)
+                    callback(false, it)
+                }
+
             }
         }
     }
@@ -135,14 +139,13 @@ class UserViewModel : ViewModel() {
     }
 
     // Get user's profile picture URL
-    fun getUserProfilePicture(uid: String, callback: (Boolean, String) -> Unit) {
+    fun getUserProfilePicture(uid: String) {
         viewModelScope.launch {
             try {
                 val url = repository.getUserProfilePicture(uid)
-                callback(true, url)
+                _profilePictureUrl.value = url
             } catch (e: Exception) {
                 e.message?.let { Log.d("Error getting user profile picture", it) }
-                callback(false, "")
             }
         }
     }
