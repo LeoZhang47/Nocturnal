@@ -133,7 +133,7 @@ fun BarDetailScreen(bar: Bar?) {
                 }
             }
             if (postsForBar.isEmpty()) {
-                Text(text = "No one has posted yet. Be the first!")
+                Text(text = stringResource(R.string.no_posts))
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
