@@ -27,11 +27,11 @@ class BarListFragment : Fragment() {
         view.findViewById<ComposeView>(R.id.composable_container).setContent {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "list") {
-                composable("list") { BarListView(navController) }
+                composable("list") { BarListView(navController, viewModel) }
                 composable("barDetail/{barID}") { backStackEntry ->
                     val barID = backStackEntry.arguments?.getString("barID")
                     val bar: Bar? = barID?.let { viewModel.getBarByID(it) }
-                    BarDetailScreen(bar)
+                    BarDetailScreen(bar, viewModel)
                 }
             }
         }

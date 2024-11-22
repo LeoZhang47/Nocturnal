@@ -3,7 +3,7 @@ package com.example.nocturnal
 import com.mapbox.geojson.Point
 import org.junit.Test
 import kotlin.test.assertEquals
-import com.example.nocturnal.data.model.distanceTo
+import com.example.nocturnal.util.distanceTo
 
 
 class PointUnitTest {

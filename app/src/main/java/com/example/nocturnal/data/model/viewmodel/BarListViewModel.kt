@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.FirestoreRepository
 import com.example.nocturnal.data.model.Post
-import com.example.nocturnal.data.model.distanceTo
+import com.example.nocturnal.util.distanceTo
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +34,9 @@ class BarListViewModel(
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private var lastLocation: Point? = null
 
@@ -79,11 +82,17 @@ class BarListViewModel(
     // Fetch bars within range based on user location
     fun fetchBars(userLocation: Point) {
         viewModelScope.launch {
-            repository.getBarsWithinRange(userLocation)
-                .catch { e -> e.printStackTrace() }
-                .collect { barsList: List<Bar> ->
-                    _bars.value = barsList
-                }
+            _isLoading.value = true
+            try {
+                repository.getBarsWithinRange(userLocation)
+                    .catch { e -> e.printStackTrace() }
+                    .collect { barsList: List<Bar> ->
+                        _bars.value = barsList
+                    }
+            } finally {
+                _isLoading.value = false
+            }
+
         }
     }
 
@@ -97,8 +106,10 @@ class BarListViewModel(
 
     fun fetchPosts() {
         viewModelScope.launch {
+            _isLoading.value = true
             repository.getPosts().collect { post ->
                 _posts.value += post
+                _isLoading.value = false
             }
         }
     }

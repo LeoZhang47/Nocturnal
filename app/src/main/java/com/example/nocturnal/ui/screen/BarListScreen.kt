@@ -35,11 +35,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun BarListView(navController: NavHostController) {
-    val viewModel: BarListViewModel = viewModel(
-        factory = remember { BarListViewModel.Factory }
-    )
+fun BarListView(navController: NavHostController, viewModel: BarListViewModel) {
 
+    val isLoading by viewModel.isLoading.collectAsState()
     val bars by viewModel.bars.collectAsState()
     val currentDate = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_formatter))
@@ -50,19 +48,31 @@ fun BarListView(navController: NavHostController) {
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        Text(
-            text = formattedDate,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center // Centers the content inside the Box
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(144.dp)
+                )
+            }
+        } else {
+            Text(
+                text = formattedDate,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(bars) { bar ->
-                BarItem(bar = bar, viewModel = viewModel, onBarClick = {
-                    navController.navigate("barDetail/${bar.id}")
-                })
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(bars) { bar ->
+                    BarItem(bar = bar, viewModel = viewModel, onBarClick = {
+                        navController.navigate("barDetail/${bar.id}")
+                    })
+                }
             }
         }
     }
@@ -96,11 +106,9 @@ fun BarItem(bar: Bar, viewModel: BarListViewModel, onBarClick: () -> Unit) {
 }
 
 @Composable
-fun BarDetailScreen(bar: Bar?) {
-    val viewModel: BarListViewModel = viewModel(
-        factory = remember { BarListViewModel.Factory }
-    )
+fun BarDetailScreen(bar: Bar?, viewModel: BarListViewModel) {
 
+    val isLoading by viewModel.isLoading.collectAsState()
     val posts by viewModel.posts.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -111,20 +119,31 @@ fun BarDetailScreen(bar: Bar?) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        if (bar != null) {
-            Text(text = bar.name, style = MaterialTheme.typography.headlineMedium)
-            val currentDate = LocalDate.now(ZoneId.of("America/New_York"))
-            val today6AM = currentDate.atTime(LocalTime.of(6, 0))
-                .atZone(ZoneId.of("America/New_York")).toInstant()
-            val yesterday6AM = currentDate.minusDays(1)
-                .atTime(LocalTime.of(6, 0)).atZone(ZoneId.of("America/New_York")).toInstant()
-            val currentInstant = Instant.now().atZone(ZoneId.of("America/New_York")).toInstant()
-            val currentTime = currentInstant.atZone(ZoneId.of("America/New_York")).toLocalTime()
-            val startTime: Instant = if (currentTime.isBefore(LocalTime.of(6, 0))) {
-                yesterday6AM
-            } else {
-                today6AM
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center // Centers the content inside the Box
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(144.dp)
+                )
             }
+        } else {
+            if (bar != null) {
+                Text(text = bar.name, style = MaterialTheme.typography.headlineMedium)
+                val currentDate = LocalDate.now(ZoneId.of("America/New_York"))
+                val today6AM = currentDate.atTime(LocalTime.of(6, 0))
+                    .atZone(ZoneId.of("America/New_York")).toInstant()
+                val yesterday6AM = currentDate.minusDays(1)
+                    .atTime(LocalTime.of(6, 0)).atZone(ZoneId.of("America/New_York")).toInstant()
+                val currentInstant = Instant.now().atZone(ZoneId.of("America/New_York")).toInstant()
+                val currentTime = currentInstant.atZone(ZoneId.of("America/New_York")).toLocalTime()
+                val startTime: Instant = if (currentTime.isBefore(LocalTime.of(6, 0))) {
+                    yesterday6AM
+                } else {
+                    today6AM
+                }
 
             val postsForBar = ArrayList<Post>()
             for (post in posts) {
@@ -143,72 +162,73 @@ fun BarDetailScreen(bar: Bar?) {
                         val username = remember { mutableStateOf<String?>(null) }
                         var profilePicturePath by remember { mutableStateOf<String?>(null) }
 
-                        LaunchedEffect(post.userID) {
-                            username.value = viewModel.getUsername(post.userID)
+                            LaunchedEffect(post.userID) {
+                                username.value = viewModel.getUsername(post.userID)
 
-                            post.userID.let { uid ->
-                                viewModel.getUserProfilePicture(uid,
-                                    onSuccess = { url -> profilePicturePath = url },
-                                    onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                                post.userID.let { uid ->
+                                    viewModel.getUserProfilePicture(uid,
+                                        onSuccess = { url -> profilePicturePath = url },
+                                        onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                                    )
+                                }
+                            }
+                            if (username.value != null) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp)
+                                ) {
+                                    val timestamp = post.timestamp.toDate()
+                                    val formatter = SimpleDateFormat(stringResource(R.string.time_formatter), Locale.getDefault())
+                                    Row (
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(8.dp)
+                                    ) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                        )
+                                        val usernameText = username.value
+                                        Text(
+                                            text = if (usernameText != null) {
+                                                stringResource(R.string.username, usernameText)
+                                            } else stringResource(R.string.loading_username),
+                                            modifier = Modifier.padding(8.dp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Text(
+                                            text = formatter.format(timestamp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 18.sp
+                                        )
+                                    }
+
+
+                                    ExpandableImage(imageUrl = post.media)
+                                }
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.defaultimage),
+                                    contentDescription = stringResource(R.string.default_image),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                         }
-                        if (username.value != null) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp)
-                            ) {
-                                val timestamp = post.timestamp.toDate()
-                                val formatter = SimpleDateFormat(stringResource(R.string.time_formatter), Locale.getDefault())
-                                Row (
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(8.dp)
-                                ) {
-                                    Image(
-                                        painter = rememberAsyncImagePainter(profilePicturePath ?: R.drawable.nocturnal_default_pfp),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                    )
-                                    val usernameText = username.value
-                                    Text(
-                                        text = if (usernameText != null) {
-                                            stringResource(R.string.username, usernameText)
-                                        } else stringResource(R.string.loading_username),
-                                        modifier = Modifier.padding(8.dp),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 18.sp
-                                    )
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Text(
-                                        text = formatter.format(timestamp),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 18.sp
-                                    )
-                                }
-
-
-                                ExpandableImage(imageUrl = post.media)
-                            }
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.defaultimage),
-                                contentDescription = stringResource(R.string.default_image),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
                     }
                 }
-            }
 
-        } else {
-            Text(text = stringResource(R.string.bar_not_found), style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text(text = stringResource(R.string.bar_not_found), style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
