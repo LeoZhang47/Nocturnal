@@ -21,7 +21,6 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,26 +34,33 @@ fun ProfileScreen(
     onBackClick: () -> Unit,
     fragmentManager: FragmentManager,
     profileActivity: ProfileActivity,
-    //imageUrls: List<String>,
     userViewModel: UserViewModel = viewModel(),
     onChangeProfilePicture: () -> Unit
 ) {
     val currentUser = userViewModel.getCurrentUser()
-    val usernameFlow = currentUser?.uid?.let { userViewModel.getUsername(it) } ?: MutableStateFlow(stringResource(R.string.guest))
+    val guestName = stringResource(R.string.guest)
+    val usernameFlow = remember { MutableStateFlow(guestName) }
     val username by usernameFlow.collectAsState()
 
-    var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+    val profilePicture by userViewModel.profilePictureUrl.collectAsState()
+    val imageUrls by userViewModel.imageUrls.collectAsState(emptyList())
 
+
+    // Fetch user profile picture URL when the user changes
     LaunchedEffect(currentUser) {
         currentUser?.uid?.let { uid ->
-            userViewModel.getUserProfilePicture(uid,
-                onSuccess = { url -> profilePictureUrl = url },
-                onFailure = { profilePictureUrl = null }
-            )
+            userViewModel.getUserProfilePicture(uid)
         }
     }
 
-    val imageUrls by userViewModel.imageUrls.observeAsState(emptyList())
+    // Fetch username when the user changes
+    LaunchedEffect(currentUser) {
+        currentUser?.uid?.let { uid ->
+            userViewModel.getUsername(uid) { fetchedUsername ->
+                usernameFlow.value = fetchedUsername ?: "Guest"
+            }
+        }
+    }
 
     var showDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
@@ -62,7 +68,7 @@ fun ProfileScreen(
     var newPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var passwordErrorMessage by remember { mutableStateOf("") }
-    var userScore by remember { mutableStateOf(0) }
+    var userScore by remember { mutableIntStateOf(0) }
     var scoreErrorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -101,7 +107,7 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(profilePictureUrl ?: R.drawable.nocturnal_default_pfp),
+                        painter = rememberAsyncImagePainter(profilePicture ?: R.drawable.nocturnal_default_pfp),
                         contentDescription = stringResource(R.string.profile_picture),
                         modifier = Modifier
                             .size(100.dp)
@@ -181,7 +187,7 @@ fun ProfileScreen(
             }
         }
 
-        // Existing dialog code for changing username and password
+        // Dialogs for username and password change
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
@@ -207,13 +213,21 @@ fun ProfileScreen(
                     Button(onClick = {
                         currentUser?.uid?.let { uid ->
                             userViewModel.changeUsername(
-                                newUsername,
-                                onSuccess = {
-                                    userViewModel.getUsername(uid)
-                                    showDialog = false
-                                    errorMessage = ""
-                                },
-                                onFailure = { error -> errorMessage = error }
+                                uid, newUsername,
+                                callback = {success, msg ->
+                                    run {
+                                        if (success) {
+                                            userViewModel.getUsername(uid) { fetchedUsername ->
+                                                usernameFlow.value = fetchedUsername ?: "Guest"
+                                            }
+                                            showDialog = false
+                                            errorMessage = ""
+                                        } else {
+                                            errorMessage = msg
+                                        }
+
+                                    }
+                                }
                             )
                         }
                     }) {
@@ -252,14 +266,8 @@ fun ProfileScreen(
                 },
                 confirmButton = {
                     Button(onClick = {
-                        userViewModel.changePassword(
-                            newPassword,
-                            onSuccess = {
-                                showPasswordDialog = false
-                                passwordErrorMessage = ""
-                            },
-                            onFailure = { error -> passwordErrorMessage = error }
-                        )
+                        userViewModel.changePassword(newPassword)
+                        showPasswordDialog = false // Ensure the dialog closes
                     }) {
                         Text(stringResource(R.string.submit))
                     }
@@ -278,7 +286,6 @@ fun ProfileScreen(
 fun ExpandableImage(imageUrl: String) {
     val isPopupOpen = remember { mutableStateOf(false) }
 
-    // Thumbnail image with click to open popup
     Image(
         painter = rememberAsyncImagePainter(imageUrl),
         contentDescription = stringResource(R.string.expandable_image),
@@ -289,7 +296,6 @@ fun ExpandableImage(imageUrl: String) {
         contentScale = ContentScale.Crop
     )
 
-    // Popup dialog for full-screen image
     if (isPopupOpen.value) {
         Dialog(onDismissRequest = { isPopupOpen.value = false }) {
             Image(
@@ -297,7 +303,7 @@ fun ExpandableImage(imageUrl: String) {
                 contentDescription = stringResource(R.string.fullscreen_image),
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable { isPopupOpen.value = false }, // Dismiss on click
+                    .clickable { isPopupOpen.value = false },
                 contentScale = ContentScale.Fit
             )
         }

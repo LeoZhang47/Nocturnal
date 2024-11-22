@@ -139,6 +139,22 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1") // Lifecycle support for Compose
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
+    testImplementation ("junit:junit:4.13.2")
+    testImplementation ("org.jetbrains.kotlin:kotlin-test-junit:1.9.10")
+
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation ("org.mockito:mockito-core:4.11.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation ("junit:junit:4.13.2")
+
+    testImplementation ("org.mockito:mockito-inline:4.11.0")
+
+    testImplementation ("net.bytebuddy:byte-buddy:1.14.7")
+
+    testImplementation ("org.robolectric:robolectric:4.10")
+
+
+
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries

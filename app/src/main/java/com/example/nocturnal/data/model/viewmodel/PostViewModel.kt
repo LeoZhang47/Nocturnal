@@ -1,12 +1,16 @@
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.nocturnal.data.FirestoreRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.launch
 import java.util.Date
+
 class PostViewModel : ViewModel() {
+
     private val repository = FirestoreRepository()
-    private val auth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     fun storePost(mediaUri: String, timestamp: Date, barID: String, onSuccess: (postId: String) -> Unit, onFailure: (Exception) -> Unit) {
         val storageRef = FirebaseStorage.getInstance().reference
@@ -25,5 +29,4 @@ class PostViewModel : ViewModel() {
             }
             .addOnFailureListener(onFailure)
     }
-
 }

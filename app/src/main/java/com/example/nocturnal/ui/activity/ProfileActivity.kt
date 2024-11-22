@@ -7,15 +7,20 @@ import android.net.Uri
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.nocturnal.data.FirestoreRepository
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
-
+import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
     private val repository = FirestoreRepository()
     private lateinit var captureProfilePictureLauncher: ActivityResultLauncher<Intent>
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,17 +33,8 @@ class ProfileActivity : AppCompatActivity() {
             if (result.resultCode == RESULT_OK) {
                 val imageUri: Uri? = result.data?.data
                 imageUri?.let { uri ->
-                    // Assuming uid is available in ProfileActivity
-                    repository.updateUserProfilePicture(uid, uri,
-                        onSuccess = { downloadUrl ->
-                            // Handle success, e.g., update the UI with the new profile picture
-                            // Perhaps store the downloadUrl in the ViewModel or directly update the profile picture display
-                        },
-                        onFailure = { exception ->
-                            // Handle failure, e.g., show a Toast or log the error
-                            exception.printStackTrace()
-                        }
-                    )
+                    // Launch a coroutine to update the profile picture in Firestore
+                    updateProfilePicture(uid, uri)
                 }
             }
         }
@@ -68,5 +64,19 @@ class ProfileActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
         finish()
+    }
+
+    // Function to update the profile picture asynchronously using suspend function
+    private fun updateProfilePicture(uid: String, uri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Call suspend function from FirestoreRepository to update the profile picture
+                repository.updateUserProfilePicture(uid, uri)
+                userViewModel.getUserProfilePicture(uid)
+                // Optionally, show a success message or update UI
+            } catch (e: Exception) {
+                // Optionally handle the error (e.g., show an error message)
+            }
+        }
     }
 }

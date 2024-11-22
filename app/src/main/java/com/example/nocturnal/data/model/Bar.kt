@@ -1,4 +1,4 @@
-package com.example.nocturnal.data
+package com.example.nocturnal.data.model
 
 import com.google.firebase.firestore.GeoPoint
 

@@ -23,7 +23,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
-import com.example.nocturnal.data.Bar
+import com.example.nocturnal.data.model.Bar
+import com.example.nocturnal.data.model.Post
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import com.mapbox.geojson.Point
 import java.time.Instant
@@ -100,6 +101,11 @@ fun BarDetailScreen(bar: Bar?) {
         factory = remember { BarListViewModel.Factory }
     )
 
+    val posts by viewModel.posts.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchPosts()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -120,40 +126,34 @@ fun BarDetailScreen(bar: Bar?) {
                 today6AM
             }
 
-            val postIDs: ArrayList<String> = ArrayList()
-            for (postID in bar.postIDs) {
-                val post = viewModel.getPostById(postID)
-                if (post != null) {
-                    val timestamp = post.timestamp
-                    val instant = timestamp.toDate().toInstant()
-                    if (instant.isAfter(startTime)) {
-                        postIDs.add(0, postID)
-                    }
+            val postsForBar = ArrayList<Post>()
+            for (post in posts) {
+                if (post.id in bar.postIDs && post.timestamp.toDate().toInstant().isAfter(startTime)) {
+                    postsForBar.add(0, post)
                 }
             }
-            if (postIDs.isEmpty()) {
+            if (postsForBar.isEmpty()) {
                 Text(text = stringResource(R.string.no_posts))
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(postIDs) { postID ->
-                        val post = viewModel.getPostById(postID)
+                    items(postsForBar) { post ->
                         val username = remember { mutableStateOf<String?>(null) }
                         var profilePicturePath by remember { mutableStateOf<String?>(null) }
-                        if (post != null) {
-                            val unknown = stringResource(R.string.unknown_user)
-                            LaunchedEffect(post.userID) {
-                                username.value = viewModel.getUsername(post.userID) ?: unknown
 
-                                post.userID.let { uid ->
-                                    viewModel.getUserProfilePicture(uid,
-                                        onSuccess = { url -> profilePicturePath = url },
-                                        onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
-                                    )
-                                }
+                        LaunchedEffect(post.userID) {
+                            username.value = viewModel.getUsername(post.userID)
+
+                            post.userID.let { uid ->
+                                viewModel.getUserProfilePicture(uid,
+                                    onSuccess = { url -> profilePicturePath = url },
+                                    onFailure = { profilePicturePath = "src/main/res/drawable/nocturnal-default-pfp.png" }
+                                )
                             }
+                        }
+                        if (username.value != null) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()

@@ -1,140 +1,116 @@
 package com.example.nocturnal.data
 
+import android.net.Uri
+import android.util.Log
+import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.model.Post
+import com.example.nocturnal.data.model.distanceTo
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.util.Date
-import android.net.Uri
-import com.example.nocturnal.data.model.distanceTo
 import com.mapbox.geojson.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
-
+import java.util.Date
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
     private val storageRef = FirebaseStorage.getInstance().reference
 
-
-    fun storeUsername(uid: String, username: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val user = hashMapOf("username" to username)
-        db.collection("users").document(uid)
-            .set(user)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { exception -> onFailure(exception) }
+    suspend fun storeUsername(uid: String, username: String) {
+        val user = mapOf("username" to username)
+        db.collection("users").document(uid).update(user).await()
     }
 
-    fun storeScore(uid: String, score: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+
+    suspend fun storeScore(uid: String, score: Int) {
         val userScore = hashMapOf("score" to score)
         db.collection("users").document(uid)
-            .set(userScore, com.google.firebase.firestore.SetOptions.merge())  // Merge the score with existing data
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { exception -> onFailure(exception) }
+            .set(userScore, com.google.firebase.firestore.SetOptions.merge())
+            .await()
     }
 
-    fun incrementUserScore(uid: String, incrementBy: Int = 1, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    suspend fun incrementUserScore(uid: String, incrementBy: Int = 1) {
         val userRef = db.collection("users").document(uid)
-
-        userRef.get()
-            .addOnSuccessListener { document ->
-                val currentScore = document.getLong("score")?.toInt() ?: 0
-                val newScore = currentScore + incrementBy
-
-                userRef.update("score", newScore)
-                    .addOnSuccessListener { onSuccess() }
-                    .addOnFailureListener { exception -> onFailure(exception) }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+        val document = userRef.get().await()
+        val currentScore = document.getLong("score")?.toInt() ?: 0
+        val newScore = currentScore + incrementBy
+        userRef.update("score", newScore).await()
     }
 
-    fun getBarsWithinRange(userLocation: Point, onResult: (List<Bar>) -> Unit, onError: (Exception) -> Unit) {
-        db.collection("bars")
-            .get()
-            .addOnSuccessListener { result ->
-                // Filter the bars to only include those within 2 miles of the user's location
-                val nearbyBars = result.mapNotNull { document ->
-                    val barGeoPoint = document.getGeoPoint("location")
-                    if (barGeoPoint != null) {
-                        // Convert GeoPoint to Point for distance calculation
-                        val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
-                        val distance = userLocation.distanceTo(barLocation)
-
-                        // Only keep bars within 1 mile
-                        if (distance <= 1) {
-                            Bar(
-                                id = document.id,
-                                name = document.getString("name") ?: "",
-                                location = barGeoPoint,
-                                postIDs = (document.get("postIDs") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
-                            )
-                        } else {
-                            null
-                        }
-                    } else {
-                        null
-                    }
+    fun getBarsWithinRange(userLocation: Point) = flow {
+        try {
+            val result = db.collection("bars").get().await()
+            val bars = result.mapNotNull { document ->
+                val barGeoPoint = document.getGeoPoint("location")
+                barGeoPoint?.let {
+                    val barLocation = Point.fromLngLat(it.longitude, it.latitude)
+                    val distance = userLocation.distanceTo(barLocation)
+                    if (distance <= 1) {
+                        Bar(
+                            id = document.id,
+                            name = document.getString("name") ?: "",
+                            location = barGeoPoint,
+                            postIDs = (document.get("postIDs") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                        )
+                    } else null
                 }
-
-                onResult(nearbyBars) // Return the filtered list of nearby bars
             }
-            .addOnFailureListener { exception ->
-                onError(exception) // Handle errors
-            }
+            emit(bars) // Emit the list of bars
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(emptyList<Bar>()) // Emit an empty list in case of an error
+        }
     }
 
+    fun getPosts(): Flow<Post> = callbackFlow {
+        val db = FirebaseFirestore.getInstance()
+        val postsCollection = db.collection("posts")
 
-    fun getPosts(onResult: (List<Post>) -> Unit, onError: (Exception) -> Unit) {
-        db.collection("posts")
-            .get()
-            .addOnSuccessListener { result ->
-                val postsList = result.map { document ->
-                    Post(
+        val listener = postsCollection.addSnapshotListener { snapshot, exception ->
+            if (exception != null) {
+                close(exception) // Close the flow in case of an error
+                return@addSnapshotListener
+            }
+
+            snapshot?.let {
+                for (document in it.documents) {
+                    val post = Post(
                         id = document.id,
-                        media = document.getString("media") ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2FDefaultImage.png?alt=media&token=6c8e7702-287a-4f08-8c41-9a09aeda8afc",
+                        media = document.getString("media")
+                            ?: "https://firebasestorage.googleapis.com/v0/b/nocturnal-18a34.appspot.com/o/images%2Ferror%2FDefaultImage.png?alt=media&token=6c8e7702-287a-4f08-8c41-9a09aeda8afc",
                         timestamp = document.getTimestamp("timestamp") ?: Timestamp.now(),
                         userID = document.getString("user") ?: "",
                         barID = document.getString("bar") ?: ""
                     )
-                }
-                onResult(postsList)
-            }
-            .addOnFailureListener { exception ->
-                onError(exception)
-            }
-    }
-
-
-
-    // Fetch username from Firestore using uid
-    fun getUsername(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val username = document.getString("username") ?: "Unknown User"
-                    onSuccess(username)
-                } else {
-                    onFailure(Exception("User not found"))
+                    trySend(post) // Emit each post to the flow
                 }
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+        }
+
+        awaitClose { listener.remove() } // Clean up the listener when the flow is canceled
     }
 
-    // Fetch username from Firestore using uid
     suspend fun getUsername(uid: String): String? {
         return try {
-            val documentSnapshot = db.collection("users").document(uid).get().await()
-            documentSnapshot.getString("username")
+            val document = db.collection("users").document(uid).get().await()
+            if (document.exists()) {
+                document.getString("username")
+            } else {
+                null
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            e.message?.let { Log.d("Error getting post's username", it) }
+            return null
         }
     }
-
 
     fun storePost(
         media: String,
@@ -151,138 +127,84 @@ class FirestoreRepository {
             "bar" to barID
         )
 
-        // Generate a document reference for the post
         val postRef = db.collection("posts").document()
 
-        // Set the data and handle the success and failure cases
         postRef.set(postData)
             .addOnSuccessListener {
-                // Return the postId back to the caller
                 onSuccess(postRef.id)
             }
             .addOnFailureListener { exception ->
-                // Handle the error and pass the exception to the failure callback
                 onFailure(exception)
             }
     }
 
+    suspend fun getNearestBar(userLocation: Point): Bar? {
+        val result = db.collection("bars").get().await()
+        var nearestBar: Bar? = null
+        var shortestDistance = Double.MAX_VALUE
 
-    // Fetch the nearest bar based on the provided location
-    fun getNearestBar(userLocation: Point, onResult: (Bar?) -> Unit, onError: (Exception) -> Unit) {
-        // Step 2: Fetch bars from Firestore
-        db.collection("bars").get()
-            .addOnSuccessListener { result ->
-                var nearestBar: Bar? = null
-                var shortestDistance = Double.MAX_VALUE
-
-                // Iterate through all bars and find the nearest one
-                for (document in result) {
-                    val barGeoPoint = document.getGeoPoint("location")
-                    if (barGeoPoint != null) {
-                        // Convert GeoPoint to Point for distance calculation
-                        val barLocation = Point.fromLngLat(barGeoPoint.longitude, barGeoPoint.latitude)
-                        val distance = userLocation.distanceTo(barLocation)
-
-                        // Update the nearest bar if this one is closer
-                        if (distance < shortestDistance) {
-                            shortestDistance = distance
-                            nearestBar = document.toObject(Bar::class.java).copy(id = document.id)
-                        }
-                    }
+        for (document in result) {
+            val barGeoPoint = document.getGeoPoint("location")
+            barGeoPoint?.let {
+                val barLocation = Point.fromLngLat(it.longitude, it.latitude)
+                val distance = userLocation.distanceTo(barLocation)
+                if (distance < shortestDistance) {
+                    shortestDistance = distance
+                    nearestBar = document.toObject(Bar::class.java).copy(id = document.id)
                 }
-
-                onResult(nearestBar) // Return the nearest bar
-
             }
-            .addOnFailureListener { exception ->
-                onError(exception) // Handle errors
-            }
+        }
+        return nearestBar
     }
 
-    fun getUserPosts(uid: String, onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getUserPosts(uid: String): Flow<String> = flow {
         val userImagesRef = storageRef.child("images/$uid/")
+        val listResult = userImagesRef.listAll().await()
+        for (item in listResult.items) {
+            val url = item.downloadUrl.await().toString()
+            emit(url) // Emit each URL as it is fetched
+        }
+    }.catch { e ->
+        // Handle any errors that occur
+        Log.e("getUserPostsAsFlow", "Error fetching user posts", e)
+        throw e
+    }.flowOn(Dispatchers.IO) // Perform on a background thread
 
-        // Check if the folder exists by listing its contents
-        userImagesRef.listAll()
-            .addOnSuccessListener { listResult ->
-                val imageUrls = mutableListOf<String>()
 
-                // If the folder exists, retrieve image URLs
-                if (listResult.items.isNotEmpty()) {
-                    val tasks = listResult.items.map { storageReference ->
-                        storageReference.downloadUrl.addOnSuccessListener { uri ->
-                            imageUrls.add(uri.toString())
-                        }
-                    }
-
-                    // After all URLs are retrieved, call the success callback
-                    tasks.lastOrNull()?.addOnCompleteListener {
-                        onSuccess(imageUrls)
-                    }
-                } else {
-                    // No images found, return an empty list
-                    onSuccess(imageUrls) // This ensures that the UI renders correctly
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+    suspend fun getUserProfilePicture(uid: String): String {
+        val userPfpRef = storageRef.child("profile-pictures/pfp-$uid")
+        return try {
+            userPfpRef.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            val defaultPfpRef = storageRef.child("profile-pictures/nocturnal_default_pfp.xml/")
+            defaultPfpRef.downloadUrl.await().toString()
+        }
     }
 
-    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        // Reference to the user's profile picture in the "profile-pictures" folder
+    suspend fun updateUserProfilePicture(uid: String, imageUri: Uri): String {
         val userPfpRef = storageRef.child("profile-pictures/pfp-$uid")
-
-        // Attempt to get the download URL of the user-specific profile picture
-        userPfpRef.downloadUrl
-            .addOnSuccessListener { uri ->
-                // User-specific profile picture exists, return its URL
-                onSuccess(uri.toString())
-            }
-            .addOnFailureListener {
-                // If the user-specific profile picture is not found, get the default profile picture
-                val defaultPfpRef = storageRef.child("profile-pictures/nocturnal_default_pfp.xml/")
-                defaultPfpRef.downloadUrl
-                    .addOnSuccessListener { defaultUri ->
-                        // Return the default profile picture URL
-                        onSuccess(defaultUri.toString())
-                    }
-                    .addOnFailureListener { defaultException ->
-                        // If both the user-specific and default images fail, report an error
-                        onFailure(defaultException)
-                    }
-            }
-    }
-
-    fun updateUserProfilePicture(uid: String, imageUri: Uri, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        // Reference to where the profile picture will be stored
-        val userPfpRef = storageRef.child("profile-pictures/pfp-$uid")
-
-        // Upload the image to Firebase Storage
-        userPfpRef.putFile(imageUri)
-            .addOnSuccessListener {
-                // After upload, get the download URL
-                userPfpRef.downloadUrl
-                    .addOnSuccessListener { uri ->
-                        // Return the download URL as a success callback
-                        onSuccess(uri.toString())
-                    }
-                    .addOnFailureListener { exception ->
-                        // Failed to get the download URL after upload
-                        onFailure(exception)
-                    }
-            }
-            .addOnFailureListener { exception ->
-                // Failed to upload the image
-                onFailure(exception)
-            }
+        userPfpRef.putFile(imageUri).await()
+        return userPfpRef.downloadUrl.await().toString()
     }
 
     fun updateBarPostIds(barId: String, postId: String, onComplete: (Boolean, Exception?) -> Unit) {
         val barRef = db.collection("bars").document(barId)
-        barRef.update("postIDs", com.google.firebase.firestore.FieldValue.arrayUnion(postId))
+        barRef.update("postIDs", FieldValue.arrayUnion(postId))
             .addOnSuccessListener { onComplete(true, null) }
             .addOnFailureListener { exception -> onComplete(false, exception) }
     }
 
+    suspend fun getUserScore(uid: String): String {
+        return try {
+            val document = db.collection("users").document(uid).get().await()
+            if (document.exists()) {
+                val score = document.getLong("score")?.toInt() ?: 0
+                score.toString()
+            } else {
+                "0"
+            }
+        } catch (e: Exception) {
+            e.message ?: "Failed to retrieve score"
+        }
+    }
 }

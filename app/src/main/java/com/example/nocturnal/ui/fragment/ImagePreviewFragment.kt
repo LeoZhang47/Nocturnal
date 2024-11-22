@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.nocturnal.R
-import com.example.nocturnal.data.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
 import java.util.Date
 import android.util.Log
@@ -27,6 +26,9 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.geojson.Point
 import android.graphics.Color
+import androidx.lifecycle.lifecycleScope
+import com.example.nocturnal.data.model.Bar
+import kotlinx.coroutines.launch
 
 class ImagePreviewFragment : DialogFragment() {
 
@@ -130,10 +132,7 @@ class ImagePreviewFragment : DialogFragment() {
                 saveMediaToFirestore(imageUri)
                 userViewModel.incrementUserScore(
                     incrementBy = 1,  // or any other increment value
-                    onSuccess = {
-                        // Handle successful score increment, e.g., show a success message
-                    },
-                    onFailure = { errorMessage ->
+                    callback = { _, errorMessage ->
                         // Handle failure, e.g., show an error message
                         Log.e("UserViewModel", "Error incrementing score: $errorMessage")
                     }
@@ -182,22 +181,29 @@ class ImagePreviewFragment : DialogFragment() {
 
     private fun processPostWithBar(nearestBar: Bar, mediaUri: Uri, timestamp: Date) {
         nearestBar.id?.let { barId ->
-            postViewModel.storePost(
-                mediaUri.toString(),
-                timestamp,
-                barId,
-                onSuccess = { postId ->
-                    updateBarWithPostId(barId, postId)
-                    // Toast.makeText(requireActivity(), "Post added to bar ${nearestBar.name}", Toast.LENGTH_SHORT).show()
-                },
-                onFailure = { exception ->
-//                    Toast.makeText(
-//                        requireActivity(),
-//                        "Failed to store post: ${exception.message}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    // Store the post in Firestore
+                    postViewModel.storePost(
+                        mediaUri.toString(),
+                        timestamp,
+                        barId,
+                        onSuccess = { postId ->
+                            // Once the post is successfully stored, update the bar with the postId
+                            updateBarWithPostId(barId, postId)
+                            // Toast.makeText(requireActivity(), "Post added to bar ${nearestBar.name}", Toast.LENGTH_SHORT).show()
+                        },
+                        onFailure = { exception ->
+                            // Optionally handle failure (e.g., show error Toast)
+                            // Toast.makeText(requireActivity(), "Failed to store post: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                } catch (e: Exception) {
+                    // Handle any exceptions that may occur during the process
+                    // Optionally log the error or show a Toast
+                    Log.e("processPostWithBar", "Error processing post: ${e.message}")
                 }
-            )
+            }
         }
     }
 
@@ -210,5 +216,6 @@ class ImagePreviewFragment : DialogFragment() {
             }
         }
     }
+
 }
 
