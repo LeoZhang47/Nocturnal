@@ -48,7 +48,7 @@ class LoginFragment : Fragment() {
                     val intent = Intent(activity, CameraActivity::class.java)
                     startActivity(intent)
                 } else {
-                    Toast.makeText(context, "Login failed: $errorMessage", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.login_failed_print_error_msg, errorMessage), Toast.LENGTH_LONG).show()
                 }
             }
         }

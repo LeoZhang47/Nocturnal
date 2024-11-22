@@ -102,6 +102,9 @@ class ImagePreviewFragment : DialogFragment() {
             }
         }
 
+        // Set range
+        val range = 0.1
+
         // Observe nearestBar to determine if the user is within 0.1 miles
         barListViewModel.nearestBar.observe(viewLifecycleOwner) { nearestBar ->
             nearestBar?.location?.let { barLocation ->
@@ -111,7 +114,7 @@ class ImagePreviewFragment : DialogFragment() {
                     val distance = location.distanceTo(barPoint)
 
                     // Update isWithinRange in SharedViewModel based on the distance
-                    val isWithinRange = distance <= 0.1
+                    val isWithinRange = distance <= range
                     cameraViewModel.setWithinRange(isWithinRange)
 
                     Log.d("NearestBar", "Nearest Bar: ${nearestBar.name}, Distance: $distance miles")
@@ -134,6 +137,7 @@ class ImagePreviewFragment : DialogFragment() {
                         Log.e("UserViewModel", "Error incrementing score: $errorMessage")
                     }
                 )
+
                 requireActivity().supportFragmentManager.popBackStack()
                 // Close the ImagePreviewFragment
                 dismiss()
@@ -141,7 +145,7 @@ class ImagePreviewFragment : DialogFragment() {
                 // If not within range, show a toast message
                 Toast.makeText(
                     requireContext(),
-                    "You are not within 0.1 miles of a bar",
+                    getString(R.string.bar_out_of_range, range),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -168,9 +172,9 @@ class ImagePreviewFragment : DialogFragment() {
             if (currentNearestBar != null) {
                 processPostWithBar(currentNearestBar, mediaUri, timestamp)
                 // TODO! This toast should not go here:
-                Toast.makeText(requireActivity(), "Post added to bar ${currentNearestBar.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireActivity(), getString(R.string.post_added_confirmation, currentNearestBar.name), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireActivity(), "No nearby bar found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireActivity(), getString(R.string.no_nearby_bar), Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -13,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -39,7 +42,7 @@ fun BarListView(navController: NavHostController) {
 
     val bars by viewModel.bars.collectAsState()
     val currentDate = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_formatter))
     val formattedDate = currentDate.format(formatter)
 
     Column(
@@ -48,7 +51,7 @@ fun BarListView(navController: NavHostController) {
             .padding(8.dp)
     ) {
         Text(
-            text = "Posts for $formattedDate",
+            text = formattedDate,
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -132,7 +135,6 @@ fun BarDetailScreen(bar: Bar?) {
             if (postsForBar.isEmpty()) {
                 Text(text = "No one has posted yet. Be the first!")
             } else {
-
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -158,7 +160,7 @@ fun BarDetailScreen(bar: Bar?) {
                                     .padding(bottom = 16.dp)
                             ) {
                                 val timestamp = post.timestamp.toDate()
-                                val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                                val formatter = SimpleDateFormat(stringResource(R.string.time_formatter), Locale.getDefault())
                                 Row (
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(8.dp)
@@ -171,8 +173,11 @@ fun BarDetailScreen(bar: Bar?) {
                                             .size(40.dp)
                                             .clip(CircleShape)
                                     )
+                                    val usernameText = username.value
                                     Text(
-                                        text = "@${username.value ?: "Loading username..."}",
+                                        text = if (usernameText != null) {
+                                            stringResource(R.string.username, usernameText)
+                                        } else stringResource(R.string.loading_username),
                                         modifier = Modifier.padding(8.dp),
                                         color = MaterialTheme.colorScheme.primary,
                                         fontSize = 18.sp
@@ -188,13 +193,22 @@ fun BarDetailScreen(bar: Bar?) {
 
                                 ExpandableImage(imageUrl = post.media)
                             }
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.defaultimage),
+                                contentDescription = stringResource(R.string.default_image),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentScale = ContentScale.Crop
+                            )
                         }
                     }
                 }
             }
 
         } else {
-            Text(text = "Bar not found", style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(R.string.bar_not_found), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -206,7 +220,7 @@ fun ExpandableImage(imageUrl: String) {
     // Thumbnail image with click to open popup
     Image(
         painter = rememberAsyncImagePainter(imageUrl),
-        contentDescription = "Expandable image",
+        contentDescription = stringResource(R.string.expandable_image),
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(16f / 9f)
@@ -219,7 +233,7 @@ fun ExpandableImage(imageUrl: String) {
         Dialog(onDismissRequest = { isPopupOpen.value = false }) {
             Image(
                 painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = "Full-screen image",
+                contentDescription = stringResource(R.string.fullscreen_image),
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable { isPopupOpen.value = false }, // Dismiss on click

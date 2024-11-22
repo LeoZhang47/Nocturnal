@@ -39,9 +39,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.MapActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Nocturnal"/>
+<!--        <activity android:name=".ui.activity.MapActivity"-->
+<!--            android:exported="true"-->
+<!--            android:theme="@style/Theme.Nocturnal"/>-->
 
         <!-- CameraActivity -->
         <activity
@@ -58,12 +58,12 @@
         <activity android:name=".ui.activity.ProfileActivity" />
 
         <!-- BarListActivity -->
-        <activity
-            android:name=".ui.activity.BarListActivity"
-            android:exported="true"
-            android:label="Nocturnal"
-            android:theme="@style/Theme.Nocturnal">
-        </activity>
+<!--        <activity-->
+<!--            android:name=".ui.activity.BarListActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="Nocturnal"-->
+<!--            android:theme="@style/Theme.Nocturnal">-->
+<!--        </activity>-->
 
 
 
