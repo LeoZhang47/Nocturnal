@@ -4,7 +4,7 @@ import android.net.Uri
 import android.util.Log
 import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.model.Post
-import com.example.nocturnal.data.model.distanceTo
+import com.example.nocturnal.util.distanceTo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
