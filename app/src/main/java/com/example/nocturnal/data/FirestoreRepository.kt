@@ -25,9 +25,10 @@ class FirestoreRepository {
     private val storageRef = FirebaseStorage.getInstance().reference
 
     suspend fun storeUsername(uid: String, username: String) {
-        val user = hashMapOf("username" to username)
-        db.collection("users").document(uid).set(user).await()
+        val user = mapOf("username" to username)
+        db.collection("users").document(uid).update(user).await()
     }
+
 
     suspend fun storeScore(uid: String, score: Int) {
         val userScore = hashMapOf("score" to score)
