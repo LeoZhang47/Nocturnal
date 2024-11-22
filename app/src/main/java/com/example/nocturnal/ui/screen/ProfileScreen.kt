@@ -267,6 +267,7 @@ fun ProfileScreen(
                 confirmButton = {
                     Button(onClick = {
                         userViewModel.changePassword(newPassword)
+                        showPasswordDialog = false // Ensure the dialog closes
                     }) {
                         Text(stringResource(R.string.submit))
                     }
