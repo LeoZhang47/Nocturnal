@@ -26,12 +26,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.graphics.Color
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.activity.viewModels
-import LocationService
 import android.view.GestureDetector
 import android.view.MotionEvent
+import com.example.nocturnal.service.LocationService
 import com.example.nocturnal.ui.fragment.BarListFragment
 import com.example.nocturnal.ui.fragment.MapFragment
-import com.mapbox.geojson.Point
 import kotlin.math.abs
 
 class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
@@ -83,15 +82,13 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-        // Set Camera as the selected item
-        bottomNavigationView.selectedItemId = R.id.navigation_camera
-
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_bar -> {
                     supportFragmentManager.commit {
                         replace(R.id.fragment_container, BarListFragment())
                         addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_bar
                     }
                     overridePendingTransition(0, 0)
                     true
@@ -100,6 +97,7 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     supportFragmentManager.commit {
                         replace(R.id.fragment_container, MediaSelectionFragment())
                         addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_camera
                     }
                     overridePendingTransition(0, 0)
                     true
@@ -108,6 +106,7 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     supportFragmentManager.commit {
                         replace(R.id.fragment_container, MapFragment())
                         addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_map
                     }
                     overridePendingTransition(0, 0)
                     true
@@ -155,22 +154,13 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             }
 
         }
-
-//        // Load the MediaSelectionFragment by default
-//        if (savedInstanceState == null) {
-//            supportFragmentManager.commit {
-//                replace(R.id.fragment_container, MediaSelectionFragment())
-//            }
-//        }
     }
 
     override fun onResume() {
         super.onResume()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        // Set Camera as the selected item when returning to CameraActivity
-        bottomNavigationView.selectedItemId = R.id.navigation_camera
+        bottomNavigationView.selectedItemId = cameraViewModel.fragment
     }
 
     // Inflate the settings menu

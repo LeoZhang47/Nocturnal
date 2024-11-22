@@ -1,4 +1,5 @@
-import android.widget.Toast
+package com.example.nocturnal.ui.screen
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
@@ -277,34 +277,6 @@ fun ProfileScreen(
                         Text(stringResource(R.string.cancel))
                     }
                 }
-            )
-        }
-    }
-}
-
-@Composable
-fun ExpandableImage(imageUrl: String) {
-    val isPopupOpen = remember { mutableStateOf(false) }
-
-    Image(
-        painter = rememberAsyncImagePainter(imageUrl),
-        contentDescription = stringResource(R.string.expandable_image),
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)
-            .clickable { isPopupOpen.value = true },
-        contentScale = ContentScale.Crop
-    )
-
-    if (isPopupOpen.value) {
-        Dialog(onDismissRequest = { isPopupOpen.value = false }) {
-            Image(
-                painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = stringResource(R.string.fullscreen_image),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { isPopupOpen.value = false },
-                contentScale = ContentScale.Fit
             )
         }
     }

@@ -21,9 +21,6 @@ class UserViewModel(
     private val _profilePictureUrl = MutableStateFlow<String?>(null)
     val profilePictureUrl: StateFlow<String?> = _profilePictureUrl
 
-//    private val _profilePicture = MutableLiveData<String>("")
-//    val profilePicture: LiveData<String> get() = _profilePicture
-
     // Login user
     fun loginUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)

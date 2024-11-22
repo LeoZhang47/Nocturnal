@@ -1,6 +1,5 @@
 package com.example.nocturnal.data.model.viewmodel
 
-import LocationService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -13,6 +12,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.FirestoreRepository
 import com.example.nocturnal.data.model.Post
+import com.example.nocturnal.service.LocationService
 import com.example.nocturnal.util.distanceTo
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow

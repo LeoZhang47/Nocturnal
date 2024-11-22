@@ -1,6 +1,5 @@
 package com.example.nocturnal.ui.activity
 
-import ProfileScreen
 import android.os.Bundle
 import android.content.Intent
 import android.net.Uri
@@ -10,10 +9,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.nocturnal.data.FirestoreRepository
 import com.example.nocturnal.data.model.viewmodel.UserViewModel
+import com.example.nocturnal.ui.screen.ProfileScreen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 

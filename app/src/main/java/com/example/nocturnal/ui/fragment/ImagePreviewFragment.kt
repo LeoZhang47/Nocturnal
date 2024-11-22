@@ -1,6 +1,5 @@
 package com.example.nocturnal.ui.fragment
 
-import LocationService
 import PostViewModel
 import android.app.Dialog
 import android.net.Uri
@@ -26,6 +25,7 @@ import com.mapbox.geojson.Point
 import android.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import com.example.nocturnal.data.model.Bar
+import com.example.nocturnal.service.LocationService
 import kotlinx.coroutines.launch
 
 class ImagePreviewFragment : DialogFragment() {

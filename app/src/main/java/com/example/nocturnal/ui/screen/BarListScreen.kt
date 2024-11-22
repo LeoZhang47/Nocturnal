@@ -18,8 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.getString
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
@@ -208,8 +206,6 @@ fun BarDetailScreen(bar: Bar?, viewModel: BarListViewModel) {
                                             fontSize = 18.sp
                                         )
                                     }
-
-
                                     ExpandableImage(imageUrl = post.media)
                                 }
                             } else {
@@ -233,32 +229,3 @@ fun BarDetailScreen(bar: Bar?, viewModel: BarListViewModel) {
     }
 }
 
-@Composable
-fun ExpandableImage(imageUrl: String) {
-    val isPopupOpen = remember { mutableStateOf(false) }
-
-    // Thumbnail image with click to open popup
-    Image(
-        painter = rememberAsyncImagePainter(imageUrl),
-        contentDescription = stringResource(R.string.expandable_image),
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)
-            .clickable { isPopupOpen.value = true },
-        contentScale = ContentScale.Crop
-    )
-
-    // Popup dialog for full-screen image
-    if (isPopupOpen.value) {
-        Dialog(onDismissRequest = { isPopupOpen.value = false }) {
-            Image(
-                painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = stringResource(R.string.fullscreen_image),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { isPopupOpen.value = false }, // Dismiss on click
-                contentScale = ContentScale.Fit
-            )
-        }
-    }
-}
