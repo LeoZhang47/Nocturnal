@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class UserViewModel : ViewModel() {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val repository = FirestoreRepository()
+class UserViewModel(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val repository: FirestoreRepository = FirestoreRepository()
+) : ViewModel() {
 
     private val _imageUrls = MutableStateFlow<List<String>>(emptyList())
     val imageUrls: StateFlow<List<String>> get() = _imageUrls
