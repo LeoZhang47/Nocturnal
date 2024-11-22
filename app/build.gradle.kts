@@ -139,6 +139,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1") // Lifecycle support for Compose
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
+    androidTestImplementation ("androidx.test:rules:1.5.0")
+
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
