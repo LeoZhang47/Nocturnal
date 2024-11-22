@@ -1,6 +1,5 @@
 package com.example.nocturnal.ui.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.compose.ui.platform.ComposeView
@@ -12,10 +11,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.nocturnal.R
 import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.data.model.viewmodel.BarListViewModel
-import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import com.example.nocturnal.ui.screen.BarDetailScreen
 import com.example.nocturnal.ui.screen.BarListView
-import com.example.nocturnal.ui.activity.ProfileActivity
 
 class BarListFragment : Fragment() {
 

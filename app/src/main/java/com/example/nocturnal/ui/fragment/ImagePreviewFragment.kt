@@ -186,11 +186,7 @@ class ImagePreviewFragment : DialogFragment() {
                         barId,
                         onSuccess = { postId ->
                             // Once the post is successfully stored, update the bar with the postId
-                            launch {
-                                // Ensure the updateBarWithPostId is called in a coroutine scope
-                                updateBarWithPostId(barId, postId)
-                            }
-                            // Optionally show success Toast
+                            updateBarWithPostId(barId, postId)
                             // Toast.makeText(requireActivity(), "Post added to bar ${nearestBar.name}", Toast.LENGTH_SHORT).show()
                         },
                         onFailure = { exception ->
@@ -207,16 +203,15 @@ class ImagePreviewFragment : DialogFragment() {
         }
     }
 
-    private suspend fun updateBarWithPostId(barId: String, postId: String) {
-        try {
-            // Call the suspend function from the repository to update the bar with the postId
-            barListViewModel.repository.updateBarPostIds(barId, postId)
-        } catch (e: Exception) {
-            // Optionally log the error or handle the exception
-            Log.e("updateBarWithPostId", "Error updating bar: ${e.message}")
+    private fun updateBarWithPostId(barId: String, postId: String) {
+        barListViewModel.repository.updateBarPostIds(barId, postId) { success, exception ->
+            if (success) {
+                // Toast.makeText(requireActivity(), "Post added to bar", Toast.LENGTH_SHORT).show()
+            } else {
+                // Toast.makeText(requireActivity(), "Failed to update bar: ${exception?.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
 
 }
 

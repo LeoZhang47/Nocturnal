@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nocturnal.data.FirestoreRepository
+import com.example.nocturnal.data.model.Bar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,6 +17,12 @@ import kotlinx.coroutines.launch
 class UserViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val repository = FirestoreRepository()
+
+    private val _imageUrls = MutableStateFlow<List<String>>(emptyList())
+    val imageUrls: StateFlow<List<String>> get() = _imageUrls
+
+//    private val _profilePicture = MutableLiveData<String>("")
+//    val profilePicture: LiveData<String> get() = _profilePicture
 
     // Login user
     fun loginUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
@@ -28,12 +36,10 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    // Sign out user
     fun signOut() {
         auth.signOut()
     }
 
-    // Register a new user
     fun registerUser(
         email: String,
         password: String,
@@ -50,7 +56,6 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    // Store username in Firestore
     fun storeUsername(uid: String, username: String) {
         viewModelScope.launch {
             try {
@@ -61,7 +66,6 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    // Store user's score in Firestore
     fun storeScore(uid: String, score: Int) {
         viewModelScope.launch {
             try {
@@ -131,38 +135,59 @@ class UserViewModel : ViewModel() {
     }
 
     // Get user's profile picture URL
-    fun getUserProfilePicture(uid: String) {
+    fun getUserProfilePicture(uid: String, callback: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             try {
                 val url = repository.getUserProfilePicture(uid)
+                callback(true, url)
             } catch (e: Exception) {
                 e.message?.let { Log.d("Error getting user profile picture", it) }
+                callback(false, "")
             }
         }
     }
 
-    private val _imageUrls = MutableLiveData<List<String>>()
-    val imageUrls: LiveData<List<String>> get() = _imageUrls
+    fun getUserScore(onSuccess: (Int) -> Unit, onFailure: (String) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            viewModelScope.launch {
+                try {
+                    val result = repository.getUserScore(uid)
+                    onSuccess(result.toInt())
+                } catch (e: Exception) {
+                    Log.e("UserViewModel", "Error fetching posts: ${e.message}")
+                    e.message?.let { onFailure(it) }
+                }
+            }
+
+        } else {
+            onFailure("No user logged in")
+        }
+    }
 
     fun getUserPosts() {
         val currentUser = getCurrentUser()
         if (currentUser != null) {
             val uid = currentUser.uid
-            // Use viewModelScope to launch a coroutine for a suspend function
             viewModelScope.launch {
                 try {
-                    // Call the suspend function from repository
-                    val posts = repository.getUserPosts(uid)
-                    _imageUrls.value = posts // Set the fetched posts to _imageUrls
+                    // Collect the flow and update _imageUrls incrementally
+                    repository.getUserPosts(uid)
+                        .collect { imageUrl ->
+                            // Append each imageUrl to the existing list
+                            _imageUrls.value = _imageUrls.value.plus(imageUrl)
+                        }
                 } catch (e: Exception) {
                     Log.e("UserViewModel", "Error fetching posts: ${e.message}")
-                    _imageUrls.value = emptyList() // Set empty list on error
+                    _imageUrls.value = emptyList() // Clear the list on error
                 }
             }
         } else {
             Log.e("UserViewModel", "No user logged in")
-            _imageUrls.value = emptyList() // Set empty list if no user is logged
+            _imageUrls.value = emptyList() // Clear the list if no user is logged in
         }
     }
+
 
 }

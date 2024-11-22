@@ -11,52 +11,22 @@ class PostViewModel : ViewModel() {
 
     private val repository = FirestoreRepository()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 
-    fun storePost(
-        mediaUri: String,
-        timestamp: Date,
-        barID: String,
-        onSuccess: (postId: String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            onFailure(Exception("User not authenticated"))
-            return
-        }
+    fun storePost(mediaUri: String, timestamp: Date, barID: String, onSuccess: (postId: String) -> Unit, onFailure: (Exception) -> Unit) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val filePath = "images/${auth.currentUser?.uid}/IMG_${System.currentTimeMillis()}.jpg"
+        val fileRef = storageRef.child(filePath)
 
-        val filePath = "images/${currentUser.uid}/IMG_${System.currentTimeMillis()}.jpg"
-        val fileRef = storage.reference.child(filePath)
-
+        // Upload the file
         val uri = Uri.parse(mediaUri)
-
-        // Upload file to Firebase Storage
         fileRef.putFile(uri)
             .addOnSuccessListener {
                 fileRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    // Once uploaded, store post data in Firestore
-                    viewModelScope.launch {
-                        try {
-                            val postId = repository.storePost(
-                                media = downloadUrl.toString(),
-                                timestamp = timestamp,
-                                uid = currentUser.uid,
-                                barID = barID
-                            )
-                            // Update the bar's postIDs field
-                            repository.updateBarPostIds(barId = barID, postId = postId)
-                            onSuccess(postId)
-                        } catch (e: Exception) {
-                            onFailure(e)
-                        }
+                    auth.currentUser?.let { currentUser ->
+                        repository.storePost(downloadUrl.toString(), timestamp, currentUser.uid, barID, onSuccess, onFailure)
                     }
-                }.addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
+                }.addOnFailureListener(onFailure)
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+            .addOnFailureListener(onFailure)
     }
 }

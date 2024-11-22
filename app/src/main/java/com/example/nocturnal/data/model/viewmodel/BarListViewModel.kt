@@ -39,7 +39,6 @@ class BarListViewModel(
 
     init {
         startLocationUpdates()  // Start location updates when ViewModel is created
-        fetchPosts()
     }
 
     private fun startLocationUpdates() {
@@ -98,11 +97,8 @@ class BarListViewModel(
 
     fun fetchPosts() {
         viewModelScope.launch {
-            try {
-                val postsList = repository.getPosts()
-                _posts.value = postsList
-            } catch (e: Exception) {
-                e.printStackTrace()
+            repository.getPosts().collect { post ->
+                _posts.value += post
             }
         }
     }
@@ -119,11 +115,13 @@ class BarListViewModel(
         return repository.getUsername(userID)
     }
 
-    suspend fun getUserProfilePicture(uid: String) {
+    suspend fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: () -> Unit ) {
         try {
-            repository.getUserProfilePicture(uid)
+            val url = repository.getUserProfilePicture(uid)
+            onSuccess(url)
         } catch (e: Exception) {
             e.printStackTrace()
+            onFailure()
         }
     }
 

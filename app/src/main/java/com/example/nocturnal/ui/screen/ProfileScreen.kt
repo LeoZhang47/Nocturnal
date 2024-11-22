@@ -1,4 +1,3 @@
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,10 +20,8 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.ui.activity.ProfileActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.Dialog
 
@@ -42,11 +39,20 @@ fun ProfileScreen(
     val username by usernameFlow.collectAsState()
 
     var profilePictureUrl by remember { mutableStateOf<String?>(null) }
+    val imageUrls by userViewModel.imageUrls.collectAsState(emptyList())
 
     // Fetch user profile picture URL when the user changes
     LaunchedEffect(currentUser) {
         currentUser?.uid?.let { uid ->
-            userViewModel.getUserProfilePicture(uid)
+            userViewModel.getUserProfilePicture(uid,
+                callback = { success, url ->
+                    profilePictureUrl = if (success) {
+                        url
+                    } else {
+                        null
+                    }
+                }
+            )
         }
     }
 
@@ -65,7 +71,7 @@ fun ProfileScreen(
     var newPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var passwordErrorMessage by remember { mutableStateOf("") }
-    var userScore by remember { mutableStateOf(0) }
+    var userScore by remember { mutableIntStateOf(0) }
     var scoreErrorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -162,7 +168,7 @@ fun ProfileScreen(
             }
 
             item {
-                if (userViewModel.imageUrls.isNotEmpty()) {
+                if (imageUrls.isNotEmpty()) {
                     Text(
                         text = "Your Images",
                         style = MaterialTheme.typography.headlineMedium,
@@ -179,7 +185,7 @@ fun ProfileScreen(
                 }
             }
 
-            items(userViewModel.imageUrls) { imageUrl ->
+            items(imageUrls) { imageUrl ->
                 ExpandableImage(imageUrl)
             }
         }
@@ -290,5 +296,4 @@ fun ExpandableImage(imageUrl: String) {
             )
         }
     }
-}
 }
