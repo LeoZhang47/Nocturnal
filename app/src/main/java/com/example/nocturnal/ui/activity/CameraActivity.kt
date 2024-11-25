@@ -33,7 +33,7 @@ import com.example.nocturnal.ui.fragment.BarListFragment
 import com.example.nocturnal.ui.fragment.MapFragment
 import kotlin.math.abs
 
-class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
+class CameraActivity : AppCompatActivity() {
 
     private val cameraViewModel: CameraViewModel by viewModels()
     private lateinit var locationService: LocationService
@@ -78,7 +78,6 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         setContentView(R.layout.activity_camera)
 
         locationService = LocationService(this)
-        this.gestureDetector = GestureDetector(this, this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -250,57 +249,4 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             // Handle location update (e.g., logging or other UI updates)
         }
     }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event != null) {
-            gestureDetector.onTouchEvent(event)
-        }
-        when (event?.action) {
-            0 -> {
-                x1=event.x
-                y1=event.y
-            }
-            1 -> {
-                x2=event.x
-                y2 = event.y
-                val valueX = x2-x1
-                if (abs(valueX) > MIN_DISTANCE) {
-                    if (x2 > x1) {
-                        supportFragmentManager.commit {
-                            replace(R.id.fragment_container, BarListFragment())
-                            addToBackStack(null)
-                        }
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
-                    } else {
-                        supportFragmentManager.commit {
-                            replace(R.id.fragment_container, MapFragment())
-                            addToBackStack(null)
-                        }
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-                    }
-                }
-            }
-        }
-        return super.onTouchEvent(event)
-    }
-
-    override fun onDown(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onLongPress(e: MotionEvent) { }
-
-    override fun onFling( e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-        return false
-    }
-
-    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-        return false
-    }
-
-    override fun onShowPress(e: MotionEvent) {}
 }
