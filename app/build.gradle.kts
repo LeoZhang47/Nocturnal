@@ -139,6 +139,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1") // Lifecycle support for Compose
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
+    androidTestImplementation ("androidx.test:rules:1.5.0")
+
     testImplementation ("junit:junit:4.13.2")
     testImplementation ("org.jetbrains.kotlin:kotlin-test-junit:1.9.10")
 
