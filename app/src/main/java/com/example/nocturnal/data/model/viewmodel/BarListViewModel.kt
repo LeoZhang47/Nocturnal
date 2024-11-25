@@ -107,6 +107,7 @@ class BarListViewModel(
     fun fetchPosts() {
         viewModelScope.launch {
             _isLoading.value = true
+            _posts.value = emptyList()
             repository.getPosts().collect { post ->
                 _posts.value += post
                 _isLoading.value = false
