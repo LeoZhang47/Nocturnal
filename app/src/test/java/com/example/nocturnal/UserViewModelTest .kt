@@ -1,5 +1,6 @@
-package com.example.nocturnal.data.model.viewmodel
+package com.example.nocturnal
 
+import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.example.nocturnal.data.FirestoreRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,17 +33,19 @@ class UserViewModelTest {
         // Arrange
         val uid = "7fUxx8FALyReb1fgnti536TSzzr1"
         val expectedUsername = "test"
+        var username: String? = ""
 
         // Mock FirestoreRepository behavior
         doAnswer { invocation ->
             val onSuccess = invocation.arguments[1] as (String) -> Unit
             onSuccess(expectedUsername) // Simulate success callback
             null // Return null for Unit functions
-        }.`when`(mockRepository).getUsername(eq(uid), any(), any())
+        }.`when`(mockRepository).getUsername(eq(uid))
 
         // Act
-        val usernameFlow = userViewModel.getUsername(uid)
-        val username = usernameFlow.first() // Collect the first emitted value
+        userViewModel.getUsername(uid) { name ->
+            username = name
+        }
 
         // Assert
         assertEquals(expectedUsername, username)
@@ -53,17 +56,19 @@ class UserViewModelTest {
         // Arrange
         val uid = "test_uid"
         val expectedError = "User not found"
+        var username: String? = ""
 
         // Mock FirestoreRepository behavior
         doAnswer { invocation ->
             val onFailure = invocation.arguments[2] as (Exception) -> Unit
             onFailure(Exception(expectedError)) // Simulate error callback
             null // Return null for Unit functions
-        }.`when`(mockRepository).getUsername(eq(uid), any(), any())
+        }.`when`(mockRepository).getUsername(eq(uid))
 
         // Act
-        val usernameFlow = userViewModel.getUsername(uid)
-        val username = usernameFlow.first() // Collect the first emitted value
+        userViewModel.getUsername(uid) { name ->
+            username = name
+        }
 
         // Assert
         assertEquals("Error: $expectedError", username)
