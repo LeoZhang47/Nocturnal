@@ -14,7 +14,7 @@ import androidx.test.rule.GrantPermissionRule
 
 
 @RunWith(AndroidJUnit4::class)
-class LoginInstrumentedTest {
+class SignupInstrumentedTest {
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule =
@@ -24,19 +24,28 @@ class LoginInstrumentedTest {
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun testSuccessfulLogin() {
+    fun testSuccessfulSignup() {
+        onView(withId(R.id.switch_to_signup)).perform(click())
         // Enter valid email
+        onView(withId(R.id.email))
+            .perform(typeText("signupTest@example.com"), closeSoftKeyboard())
+
+        // Enter valid username
         onView(withId(R.id.username))
-            .perform(typeText("test@example.com"), closeSoftKeyboard())
+            .perform(typeText("Signup Test"), closeSoftKeyboard())
 
         // Enter valid password
         onView(withId(R.id.password))
             .perform(typeText("password123"), closeSoftKeyboard())
 
-        // Click the login button
-        onView(withId(R.id.login)).perform(click())
+        // Confirm valid password
+        onView(withId(R.id.confirm_password))
+            .perform(typeText("password123"), closeSoftKeyboard())
 
-        // Verify navigation to CameraActivity by "Take a Picture" buttons visibility
+        // Click the signup button
+        onView(withId(R.id.register)).perform(click())
+
+        // Verify navigation to CameraActivity by checking toolbar visibility
         onView(withId(R.id.picture_button))
             .check(matches(isDisplayed()))
     }
