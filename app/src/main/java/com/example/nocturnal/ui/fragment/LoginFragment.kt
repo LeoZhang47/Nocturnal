@@ -54,8 +54,10 @@ class LoginFragment : Fragment() {
             // Proceed with login if inputs are valid
             userViewModel.loginUser(email, password) { isSuccess, errorMessage ->
                 if (isSuccess) {
-                    // Navigate to CameraActivity
-                    val intent = Intent(activity, CameraActivity::class.java)
+                    // Navigate to CameraActivity with back stack reset
+                    val intent = Intent(activity, CameraActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
                     startActivity(intent)
                 } else {
                     Toast.makeText(

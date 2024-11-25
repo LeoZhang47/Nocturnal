@@ -77,7 +77,9 @@ class SignUpFragment : Fragment() {
                             Toast.makeText(context, R.string.registration_successful, Toast.LENGTH_LONG).show()
 
                             // Navigate to CameraActivity
-                            val intent = Intent(activity, CameraActivity::class.java)
+                            val intent = Intent(activity, CameraActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
                             startActivity(intent)
                         } else {
                             Toast.makeText(
