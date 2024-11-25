@@ -46,24 +46,51 @@ class SignUpFragment : Fragment() {
             val password = passwordEditText.text.toString()
             val confirmPassword = confirmPasswordEditText.text.toString()
 
-            if (password == confirmPassword) {
-                userViewModel.registerUser(email, password) { isSuccess, errorMessage, uid ->
-                    if (isSuccess && uid != null) {
-                        userViewModel.storeUsername(uid, username)
-                        userViewModel.storeScore(uid, 0)
-                        Toast.makeText(context, R.string.registration_successful, Toast.LENGTH_LONG).show()
+            // Input validation
+            when {
+                email.isEmpty() -> {
+                    emailEditText.error = "Email cannot be empty"
+                    return@setOnClickListener
+                }
+                username.isEmpty() -> {
+                    usernameEditText.error = "Username cannot be empty"
+                    return@setOnClickListener
+                }
+                password.isEmpty() -> {
+                    passwordEditText.error = "Password cannot be empty"
+                    return@setOnClickListener
+                }
+                confirmPassword.isEmpty() -> {
+                    confirmPasswordEditText.error = "Please confirm your password"
+                    return@setOnClickListener
+                }
+                password != confirmPassword -> {
+                    Toast.makeText(context, R.string.password_mismatch, Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                else -> {
+                    // All inputs are valid, proceed with registration
+                    userViewModel.registerUser(email, password) { isSuccess, errorMessage, uid ->
+                        if (isSuccess && uid != null) {
+                            userViewModel.storeUsername(uid, username)
+                            userViewModel.storeScore(uid, 0)
+                            Toast.makeText(context, R.string.registration_successful, Toast.LENGTH_LONG).show()
 
-                        // Navigate to CameraActivity
-                        val intent = Intent(activity, CameraActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(context, getString(R.string.registration_failed_print_error_msg, errorMessage), Toast.LENGTH_LONG).show()
+                            // Navigate to CameraActivity
+                            val intent = Intent(activity, CameraActivity::class.java)
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                getString(R.string.registration_failed_print_error_msg, errorMessage),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
-            } else {
-                Toast.makeText(context, R.string.password_mismatch, Toast.LENGTH_LONG).show()
             }
         }
+
 
         binding.switchToLogin.setOnClickListener {
             parentFragmentManager.beginTransaction()

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 import java.util.Date
+import com.google.firebase.firestore.SetOptions
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -26,7 +27,7 @@ class FirestoreRepository {
 
     suspend fun storeUsername(uid: String, username: String) {
         val user = mapOf("username" to username)
-        db.collection("users").document(uid).update(user).await()
+        db.collection("users").document(uid).set(user, SetOptions.merge()).await()
     }
 
 
