@@ -155,6 +155,18 @@ dependencies {
 
     testImplementation ("org.robolectric:robolectric:4.10")
 
+    // JUnit for unit testing
+    testImplementation ("junit:junit:4.13.2")
+
+    // Mockito for mocking
+    testImplementation ("org.mockito:mockito-core:5.5.0")
+
+    // AndroidX Testing for ViewModel and LiveData
+    testImplementation ("androidx.arch.core:core-testing:2.1.0")
+
+    // Kotlin Coroutines Testing
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
 
 
 

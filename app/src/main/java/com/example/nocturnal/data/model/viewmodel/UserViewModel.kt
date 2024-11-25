@@ -120,21 +120,23 @@ class UserViewModel(
         }
     }
 
-    // Change user's password
-    fun changePassword(newPassword: String) {
+    fun changePassword(newPassword: String, callback: (Boolean, String?) -> Unit) {
         val currentUser = getCurrentUser()
         if (currentUser != null) {
             currentUser.updatePassword(newPassword)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        callback(true, null) // Password updated successfully
                     } else {
-                        task.exception?.message?.let { Log.d("Error changing password", it) }
+                        val errorMessage = task.exception?.message ?: "Unknown error occurred"
+                        callback(false, errorMessage) // Pass the error message
                     }
                 }
         } else {
-            Log.d("Error changing password", "No user logged in")
+            callback(false, "No user logged in") // No user to update password
         }
     }
+
 
     // Get user's profile picture URL
     fun getUserProfilePicture(uid: String) {

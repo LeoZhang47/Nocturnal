@@ -266,8 +266,18 @@ fun ProfileScreen(
                 },
                 confirmButton = {
                     Button(onClick = {
-                        userViewModel.changePassword(newPassword)
-                        showPasswordDialog = false // Ensure the dialog closes
+                        if (newPassword.isNotEmpty()) {
+                            userViewModel.changePassword(newPassword) { success, errorMessage ->
+                                if (success) {
+                                    showPasswordDialog = false // Close dialog on success
+                                    passwordErrorMessage = "" // Clear any error message
+                                } else {
+                                    passwordErrorMessage = errorMessage ?: "An error occurred"
+                                }
+                            }
+                        } else {
+                            passwordErrorMessage = "Password cannot be empty"
+                        }
                     }) {
                         Text(stringResource(R.string.submit))
                     }
