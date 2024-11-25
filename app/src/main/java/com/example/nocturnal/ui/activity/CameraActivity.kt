@@ -162,6 +162,11 @@ class CameraActivity : AppCompatActivity() {
         bottomNavigationView.selectedItemId = cameraViewModel.fragment
     }
 
+    override fun onPause() {
+        super.onPause()
+        locationService.stopLocationUpdates()
+    }
+
     // Inflate the settings menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.camera_menu, menu)
