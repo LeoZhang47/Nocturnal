@@ -21,12 +21,14 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Nocturnal"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:localeConfig="@xml/locales_config">
 
         <!-- MainActivity -->
         <activity
@@ -39,9 +41,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.MapActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Nocturnal"/>
+<!--        <activity android:name=".ui.activity.MapActivity"-->
+<!--            android:exported="true"-->
+<!--            android:theme="@style/Theme.Nocturnal"/>-->
 
         <!-- CameraActivity -->
         <activity
@@ -58,12 +60,12 @@
         <activity android:name=".ui.activity.ProfileActivity" />
 
         <!-- BarListActivity -->
-        <activity
-            android:name=".ui.activity.BarListActivity"
-            android:exported="true"
-            android:label="Nocturnal"
-            android:theme="@style/Theme.Nocturnal">
-        </activity>
+<!--        <activity-->
+<!--            android:name=".ui.activity.BarListActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="Nocturnal"-->
+<!--            android:theme="@style/Theme.Nocturnal">-->
+<!--        </activity>-->
 
 
 
@@ -80,5 +82,7 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+
     </application>
 </manifest>

@@ -2,39 +2,47 @@ package com.example.nocturnal.data.model.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.nocturnal.data.FirestoreRepository
-import androidx.lifecycle.liveData
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.launch
 
-class UserViewModel : ViewModel() {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val repository = FirestoreRepository()
+class UserViewModel(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val repository: FirestoreRepository = FirestoreRepository()
+) : ViewModel() {
 
+    private val _imageUrls = MutableStateFlow<List<String>>(emptyList())
+    val imageUrls: StateFlow<List<String>> get() = _imageUrls
+
+    private val _profilePictureUrl = MutableStateFlow<String?>(null)
+    val profilePictureUrl: StateFlow<String?> = _profilePictureUrl
+
+    // Login user
     fun loginUser(email: String, password: String, callback: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    callback(true, null)  // Login successful
+                    callback(true, null)
                 } else {
-                    callback(false, task.exception?.message)  // Login failed
+                    callback(false, task.exception?.message)
                 }
             }
     }
 
-    // Function to sign out the current user
     fun signOut() {
         auth.signOut()
-        // You may want to clear any locally stored user data or update UI state as needed
     }
 
-    fun registerUser(email: String, password: String, callback: (Boolean, String?, String?) -> Unit) {
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+    fun registerUser(
+        email: String,
+        password: String,
+        callback: (Boolean, String?, String?) -> Unit
+    ) {
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val uid = task.result?.user?.uid
@@ -45,155 +53,144 @@ class UserViewModel : ViewModel() {
             }
     }
 
-
     fun storeUsername(uid: String, username: String) {
-        repository.storeUsername(uid, username,
-            onSuccess = {
-                Log.d("storeUsername","Username stored successfully")
-            },
-            onFailure = { e ->
-                e.printStackTrace()
+        viewModelScope.launch {
+            try {
+                repository.storeUsername(uid, username)
+            } catch (e: Exception) {
+                e.message?.let { Log.d("Error storing username", it) }
             }
-        )
+        }
     }
 
     fun storeScore(uid: String, score: Int) {
-        repository.storeScore(uid, score,
-            onSuccess = {
-                // Success logic
-            },
-            onFailure = { exception ->
-                // Handle error
+        viewModelScope.launch {
+            try {
+                repository.storeScore(uid, score)
+            } catch (e: Exception) {
+                e.message?.let { Log.d("Error storing score", it) }
             }
-        )
+        }
     }
 
-    // Expose the current FirebaseAuth instance
-    fun getCurrentUser(): FirebaseUser? {
-        return auth.currentUser
+    // Increment user's score
+    fun incrementUserScore(incrementBy: Int = 1, callback: (Boolean, String?) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            viewModelScope.launch {
+                try {
+                    repository.incrementUserScore(currentUser.uid, incrementBy)
+                    callback(true, null)
+                } catch (e: Exception) {
+                    callback(false, e.message)
+                }
+            }
+        }
+
     }
 
-    // Fetch the username using the FirestoreRepository
-    fun getUsername(uid: String): StateFlow<String> {
-        val usernameFlow = MutableStateFlow("Loading...")  // Initial state as loading
+    // Get current Firebase user
+    fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
-        repository.getUsername(
-            uid = uid,
-            onSuccess = { username ->
-                usernameFlow.value = username
-            },
-            onFailure = { exception ->
-                usernameFlow.value = "Error: ${exception.message}"
+    // Fetch username from Firestore
+    fun getUsername(uid: String, callback: (String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val username = repository.getUsername(uid)
+                callback(username)
+            } catch (e: Exception) {
+                callback(null)
             }
-        )
+        }
+    }
 
-        return usernameFlow
+    // Change username
+    fun changeUsername(uid: String, newUsername: String, callback: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.storeUsername(uid, newUsername)
+                callback(true, "")
+            } catch (e: Exception) {
+                e.message?.let {
+                    Log.d("Error changing username:", it)
+                    callback(false, it)
+                }
+
+            }
+        }
+    }
+
+    fun changePassword(newPassword: String, callback: (Boolean, String?) -> Unit) {
+        val currentUser = getCurrentUser()
+        if (currentUser != null) {
+            currentUser.updatePassword(newPassword)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        callback(true, null) // Password updated successfully
+                    } else {
+                        val errorMessage = task.exception?.message ?: "Unknown error occurred"
+                        callback(false, errorMessage) // Pass the error message
+                    }
+                }
+        } else {
+            callback(false, "No user logged in") // No user to update password
+        }
+    }
+
+
+    // Get user's profile picture URL
+    fun getUserProfilePicture(uid: String) {
+        viewModelScope.launch {
+            try {
+                val url = repository.getUserProfilePicture(uid)
+                _profilePictureUrl.value = url
+            } catch (e: Exception) {
+                e.message?.let { Log.d("Error getting user profile picture", it) }
+            }
+        }
     }
 
     fun getUserScore(onSuccess: (Int) -> Unit, onFailure: (String) -> Unit) {
         val currentUser = getCurrentUser()
         if (currentUser != null) {
             val uid = currentUser.uid
-            val firestore = FirebaseFirestore.getInstance()
+            viewModelScope.launch {
+                try {
+                    val result = repository.getUserScore(uid)
+                    onSuccess(result.toInt())
+                } catch (e: Exception) {
+                    Log.e("UserViewModel", "Error fetching posts: ${e.message}")
+                    e.message?.let { onFailure(it) }
+                }
+            }
 
-            // Access user's document in Firestore
-            firestore.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        // Check if the document has a "score" field
-                        val score = document.getLong("score")?.toInt() ?: 0
-                        onSuccess(score)  // Return the score or 0 if score is null
-                    } else {
-                        onSuccess(0)  // Document does not exist, return 0
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    onFailure(exception.message ?: "Failed to retrieve score")
-                }
         } else {
             onFailure("No user logged in")
         }
     }
-
-    fun incrementUserScore(incrementBy: Int = 1, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        val currentUser = getCurrentUser()
-        if (currentUser != null) {
-            val uid = currentUser.uid
-            repository.incrementUserScore(
-                uid = uid,
-                incrementBy = incrementBy,
-                onSuccess = { onSuccess() },
-                onFailure = { exception -> onFailure(exception.message ?: "Failed to increment score") }
-            )
-        } else {
-            onFailure("No user logged in")
-        }
-    }
-
-
-    // Method to change the username
-    fun changeUsername(newUsername: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        val currentUser = getCurrentUser()
-        if (currentUser != null) {
-            val uid = currentUser.uid
-            repository.storeUsername(uid, newUsername,
-                onSuccess = {
-                    onSuccess()  // Username updated successfully
-                },
-                onFailure = { exception ->
-                    onFailure(exception.message ?: "Failed to update username")
-                }
-            )
-        } else {
-            onFailure("No user logged in")
-        }
-    }
-
-    fun changePassword(newPassword: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        val currentUser = getCurrentUser()
-        if (currentUser != null) {
-            currentUser.updatePassword(newPassword)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        onSuccess()  // Password updated successfully
-                    } else {
-                        onFailure(task.exception?.message ?: "Failed to update password")
-                    }
-                }
-        } else {
-            onFailure("No user logged in")
-        }
-    }
-
-    fun getUserProfilePicture(uid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        repository.getUserProfilePicture(
-            uid,
-            onSuccess = { url -> onSuccess(url) },
-            onFailure = { exception -> onFailure(exception) }
-        )
-    }
-
-    private val _imageUrls = MutableLiveData<List<String>>()
-    val imageUrls: LiveData<List<String>> get() = _imageUrls
 
     fun getUserPosts() {
         val currentUser = getCurrentUser()
         if (currentUser != null) {
             val uid = currentUser.uid
-            repository.getUserPosts(
-                uid,
-                onSuccess = { urls ->
-                    _imageUrls.value = urls  // Update LiveData with retrieved image URLs
-                },
-                onFailure = { exception ->
-                    Log.e("UserViewModel", "Failed to retrieve user posts: ${exception.message}")
-                    _imageUrls.value = emptyList() // Set empty list on failure
+            viewModelScope.launch {
+                try {
+                    // Collect the flow and update _imageUrls incrementally
+                    repository.getUserPosts(uid)
+                        .collect { imageUrl ->
+                            // Append each imageUrl to the existing list
+                            _imageUrls.value = _imageUrls.value.plus(imageUrl)
+                        }
+                } catch (e: Exception) {
+                    Log.e("UserViewModel", "Error fetching posts: ${e.message}")
+                    _imageUrls.value = emptyList() // Clear the list on error
                 }
-            )
+            }
         } else {
             Log.e("UserViewModel", "No user logged in")
-            _imageUrls.value = emptyList() // Set empty list if no user is logged in
+            _imageUrls.value = emptyList() // Clear the list if no user is logged in
         }
     }
-}
 
+
+}

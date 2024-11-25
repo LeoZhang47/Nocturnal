@@ -7,7 +7,10 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="no_account">Don\'t have an account? Sign up!</string>
+    <string name="create_account">Create your account on Nocturnal!</string>
+    <string name="has_account">Already have an account? Log in</string>
+    <string name="welcome">"Welcome to Nocturnal!"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
@@ -16,6 +19,7 @@
     <string name="password_mismatch">Passwords do not match</string>
     <string name="registration_successful">Registration successful</string>
     <string name="registration_failed">Registration failed</string>
+    <string name="registration_failed_print_error_msg">Registration failed: %s</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="take_picture">Take a picture</string>
@@ -24,4 +28,35 @@
     <string name="post_picture">Post Picture</string>
     <string name="barlist_button">Go to Bar List</string>
     <string name="map_button">Map Button</string>
+    <string name="no_posts">No one has posted yet. Be the first!</string>
+    <string name="unknown_user">Unknown User</string>
+    <string name="username">\@%s</string>
+    <string name="loading_username">Loading username…</string>
+    <string name="default_image">Default image</string>
+    <string name="bar_not_found">Bar not found</string>
+    <string name="expandable_image">Expandable image</string>
+    <string name="fullscreen_image">Full-screen image</string>
+    <string name="back">Back</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="guest">Guest</string>
+    <string name="score_template">Score: %d</string>
+    <string name="change_username">Change Username</string>
+    <string name="change_pfp">Change PFP</string>
+    <string name="change_password">Change Password</string>
+    <string name="logout">Log Out</string>
+    <string name="your_images">Your Images</string>
+    <string name="no_images">No images available</string>
+    <string name="enter_new_username">Enter new username</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="submit">Submit</string>
+    <string name="cancel">Cancel</string>
+    <string name="bar_out_of_range">You are not within %f miles of a bar</string>
+    <string name="post_added_confirmation">Post added to bar %s</string>
+    <string name="no_nearby_bar">No nearby bar found</string>
+    <string name="login_failed_print_error_msg">Login failed: %s</string>
+    <string name="date_formatter">MMMM dd, yyyy</string>
+    <string name="time_formatter">hh:mm a</string>
+    <string name="bars">Bars</string>
+    <string name="camera">Camera</string>
+    <string name="map">Map</string>
 </resources>

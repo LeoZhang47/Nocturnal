@@ -26,13 +26,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.graphics.Color
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.activity.viewModels
-import LocationService
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.mapbox.geojson.Point
+import com.example.nocturnal.service.LocationService
+import com.example.nocturnal.ui.fragment.BarListFragment
+import com.example.nocturnal.ui.fragment.MapFragment
 import kotlin.math.abs
 
-class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
+class CameraActivity : AppCompatActivity() {
 
     private val cameraViewModel: CameraViewModel by viewModels()
     private lateinit var locationService: LocationService
@@ -77,23 +78,35 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         setContentView(R.layout.activity_camera)
 
         locationService = LocationService(this)
-        this.gestureDetector = GestureDetector(this, this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        // Set Camera as the selected item
-        bottomNavigationView.selectedItemId = R.id.navigation_camera
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_bar -> {
-                    startActivity(Intent(this, BarListActivity::class.java))
+                    supportFragmentManager.commit {
+                        replace(R.id.fragment_container, BarListFragment())
+                        addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_bar
+                    }
                     overridePendingTransition(0, 0)
                     true
                 }
-                R.id.navigation_camera -> true  // Already on Camera screen
+                R.id.navigation_camera -> {
+                    supportFragmentManager.commit {
+                        replace(R.id.fragment_container, MediaSelectionFragment())
+                        addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_camera
+                    }
+                    overridePendingTransition(0, 0)
+                    true
+                }  // Already on Camera screen
                 R.id.navigation_map -> {
-                    startActivity(Intent(this, MapActivity::class.java))
+                    supportFragmentManager.commit {
+                        replace(R.id.fragment_container, MapFragment())
+                        addToBackStack(null)
+                        cameraViewModel.fragment = R.id.navigation_map
+                    }
                     overridePendingTransition(0, 0)
                     true
                 }
@@ -129,35 +142,29 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         // Set up the ActionBar to include the settings menu
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
 
         // Observe isWithinRange from SharedViewModel to update toolbar color
         cameraViewModel.isWithinRange.observe(this) { isWithinRange ->
             if (isWithinRange) {
-                toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
+                //toolbar.setBackgroundColor(Color.parseColor("#006400"))  // Dark green
             } else {
-                toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
+                //toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
             }
 
-        }
-
-        // Load the MediaSelectionFragment by default
-        if (savedInstanceState == null) {
-            supportFragmentManager.commit {
-                replace(R.id.fragment_container, MediaSelectionFragment())
-            }
         }
     }
 
     override fun onResume() {
         super.onResume()
 
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
-
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = cameraViewModel.fragment
+    }
 
-        // Set Camera as the selected item when returning to CameraActivity
-        bottomNavigationView.selectedItemId = R.id.navigation_camera
+    override fun onPause() {
+        super.onPause()
+        locationService.stopLocationUpdates()
     }
 
     // Inflate the settings menu
@@ -218,17 +225,8 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     }
 
     private fun showImageFragment(uri: Uri) {
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, ImagePreviewFragment.newInstance(uri.toString()))
-            addToBackStack(null)
-        }
-        supportFragmentManager.addOnBackStackChangedListener {
-            if (supportFragmentManager.backStackEntryCount == 0) {
-                // This code runs once the back stack is empty after popBackStack()
-                // Place any code here that you want to run after popBackStack completes
-                onBackStackPopped()
-            }
-        }
+        val imagePreviewFragment = ImagePreviewFragment.newInstance(uri.toString())
+        imagePreviewFragment.show(supportFragmentManager, "ImagePreviewFragment")
     }
 
     private fun setResultAndFinish(uri: Uri) {
@@ -256,58 +254,4 @@ class CameraActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             // Handle location update (e.g., logging or other UI updates)
         }
     }
-
-    // Function to handle actions after popBackStack completes
-    private fun onBackStackPopped() {
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        toolbar.setBackgroundColor(Color.parseColor("#3c0142"))
-    }
-
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event != null) {
-            gestureDetector.onTouchEvent(event)
-        }
-        when (event?.action) {
-            0 -> {
-                x1=event.x
-                y1=event.y
-            }
-            1 -> {
-                x2=event.x
-                y2 = event.y
-                val valueX = x2-x1
-                if (abs(valueX) > MIN_DISTANCE) {
-                    if (x2 > x1) {
-                        startActivity(Intent(this, BarListActivity::class.java))
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
-                    } else {
-                        startActivity(Intent(this, MapActivity::class.java))
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-                    }
-                }
-            }
-        }
-        return super.onTouchEvent(event)
-    }
-
-    override fun onDown(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return false
-    }
-
-    override fun onLongPress(e: MotionEvent) { }
-
-    override fun onFling( e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-        return false
-    }
-
-    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-        return false
-    }
-
-    override fun onShowPress(e: MotionEvent) {}
 }

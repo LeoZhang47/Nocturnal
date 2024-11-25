@@ -1,3 +1,5 @@
+package com.example.nocturnal.service
+
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -53,5 +55,9 @@ class LocationService(context: Context) {
     // Call this function to stop location updates when no longer needed
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun getLastKnownLocation(callback: (Point?) -> Unit) {
+        locationLiveData.value?.let { callback(it) } ?: callback(null)
     }
 }

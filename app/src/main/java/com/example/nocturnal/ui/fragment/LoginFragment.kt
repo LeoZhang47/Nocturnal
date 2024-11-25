@@ -12,7 +12,6 @@ import androidx.fragment.app.viewModels
 import com.example.nocturnal.ui.activity.CameraActivity
 import android.widget.Toast
 import com.example.nocturnal.R
-import com.example.nocturnal.ui.fragment.SignUpFragment
 
 
 class LoginFragment : Fragment() {
@@ -39,19 +38,37 @@ class LoginFragment : Fragment() {
 
 
         loginButton.setOnClickListener {
-            val email = usernameEditText.text.toString()
-            val password = passwordEditText.text.toString()
+            val email = usernameEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
+            // Check if email or password is empty
+            if (email.isEmpty()) {
+                usernameEditText.error = "Email cannot be empty"
+                return@setOnClickListener
+            }
+            if (password.isEmpty()) {
+                passwordEditText.error = "Password cannot be empty"
+                return@setOnClickListener
+            }
+
+            // Proceed with login if inputs are valid
             userViewModel.loginUser(email, password) { isSuccess, errorMessage ->
                 if (isSuccess) {
-                    // Navigate to CameraActivity
-                    val intent = Intent(activity, CameraActivity::class.java)
+                    // Navigate to CameraActivity with back stack reset
+                    val intent = Intent(activity, CameraActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
                     startActivity(intent)
                 } else {
-                    Toast.makeText(context, "Login failed: $errorMessage", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.login_failed_print_error_msg, errorMessage),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
+
         binding.switchToSignup.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, SignUpFragment())

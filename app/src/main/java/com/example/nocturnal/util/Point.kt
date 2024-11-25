@@ -1,4 +1,4 @@
-package com.example.nocturnal.data.model
+package com.example.nocturnal.util
 
 import com.mapbox.geojson.Point
 import kotlin.math.*
