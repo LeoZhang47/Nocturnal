@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -12,17 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.nocturnal.R
 import com.example.nocturnal.service.LocationService
-import com.mapbox.bindgen.Value
-import com.mapbox.common.TileStore
-import com.mapbox.common.TileStoreOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.ImageHolder
-import com.mapbox.maps.MapOptions
-import com.mapbox.maps.TransitionOptions
+import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.LocationPuck2D
-import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
 import kotlinx.coroutines.launch
 
@@ -50,13 +44,8 @@ class MapFragment : Fragment() {
         locationService = LocationService(requireContext())
 
         mapView.setMaximumFps(30)
-
-        mapView.gestures.apply {
-            scrollEnabled = false
-            pinchToZoomEnabled = false
-            rotateEnabled = false
-            pitchEnabled = false
-        }
+        mapView.location.enabled = false
+        mapView.mapboxMap.loadStyle(Style.LIGHT)
 
         initLocationComponent()
         setDefaultCameraPosition()
