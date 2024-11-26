@@ -50,7 +50,7 @@
     <string name="enter_new_password">Entrez un nouveau mot de passe</string>
     <string name="submit">Soumettre</string>
     <string name="cancel">Annuler</string>
-    <string name="bar_out_of_range">Vous n\'êtes pas à %f milles d\'un bar</string>
+    <string name="bar_out_of_range">Vous n\'êtes pas à %.1f milles d\'un bar</string>
     <string name="post_added_confirmation">Post ajouté au bar %s</string>
     <string name="no_nearby_bar">Aucun bar trouvé près d\'ici</string>
     <string name="login_failed_print_error_msg">Connexion echoué: %s</string>
@@ -59,4 +59,5 @@
     <string name="bars">Bars</string>
     <string name="camera">Appareil</string>
     <string name="map">Plan</string>
+    <string name="no_location">Veuillez accorder l’accès à la localisation dans les paramètres</string>
 </resources>

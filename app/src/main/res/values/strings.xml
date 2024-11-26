@@ -50,7 +50,7 @@
     <string name="enter_new_password">Enter new password</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
-    <string name="bar_out_of_range">You are not within %f miles of a bar</string>
+    <string name="bar_out_of_range">You are not within %.1f miles of a bar</string>
     <string name="post_added_confirmation">Post added to bar %s</string>
     <string name="no_nearby_bar">No nearby bar found</string>
     <string name="login_failed_print_error_msg">Login failed: %s</string>
@@ -59,4 +59,5 @@
     <string name="bars">Bars</string>
     <string name="camera">Camera</string>
     <string name="map">Map</string>
+    <string name="no_location">Please grant location access in settings</string>
 </resources>

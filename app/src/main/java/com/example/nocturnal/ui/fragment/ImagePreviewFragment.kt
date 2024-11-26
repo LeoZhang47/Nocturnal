@@ -1,7 +1,9 @@
 package com.example.nocturnal.ui.fragment
 
 import PostViewModel
+import android.Manifest
 import android.app.Dialog
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,6 +25,7 @@ import com.example.nocturnal.data.model.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.geojson.Point
 import android.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.nocturnal.data.model.Bar
 import com.example.nocturnal.service.LocationService
@@ -139,6 +142,15 @@ class ImagePreviewFragment : DialogFragment() {
                 requireActivity().supportFragmentManager.popBackStack()
                 // Close the ImagePreviewFragment
                 dismiss()
+            } else if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_location),
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 // If not within range, show a toast message
                 Toast.makeText(

@@ -8,4 +8,8 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="TitleLargeTextStyle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+
 </resources>

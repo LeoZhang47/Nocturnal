@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -24,6 +26,7 @@ class MapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var locationService: LocationService
+    private lateinit var noPermissionText: TextView
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -41,21 +44,46 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mapView = view.findViewById(R.id.mapView)
+        noPermissionText = view.findViewById(R.id.noPermissionText)
         locationService = LocationService(requireContext())
 
-        mapView.setMaximumFps(30)
-        mapView.location.enabled = false
-        mapView.mapboxMap.loadStyle(Style.LIGHT)
-
-        initLocationComponent()
-        setDefaultCameraPosition()
-        checkLocationPermissions()
+        if (hasLocationPermission()) {
+            showMap()
+            enableLocationFeatures()
+        } else {
+            showNoPermissionMessage()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         mapView.onDestroy()
         locationService.stopLocationUpdates()
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun enableLocationFeatures() {
+        mapView.setMaximumFps(30)
+        mapView.mapboxMap.loadStyle(Style.LIGHT)
+        setDefaultCameraPosition()
+        initLocationComponent()
+        startLocationUpdates()
+    }
+
+    private fun showMap() {
+        mapView.visibility = View.VISIBLE
+        noPermissionText.visibility = View.GONE
+    }
+
+    private fun showNoPermissionMessage() {
+        mapView.visibility = View.GONE
+        noPermissionText.visibility = View.VISIBLE
     }
 
     private fun initLocationComponent() {
@@ -82,22 +110,6 @@ class MapFragment : Fragment() {
             .build()
 
         mapView.mapboxMap.setCamera(cameraOptions)
-    }
-
-    private fun checkLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            startLocationUpdates()
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-        }
     }
 
     @SuppressLint("MissingPermission")

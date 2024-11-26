@@ -45,16 +45,6 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<String>
 
     private lateinit var barListViewModel: BarListViewModel
-    private lateinit var gestureDetector: GestureDetector
-    private var x1 = 0.0f
-    private var x2 = 0.0f
-    private var y1 = 0.0f
-    private var y2 = 0.0f
-
-    companion object {
-        const val MIN_DISTANCE = 150
-    }
-
 
     // Define the picture launcher
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->

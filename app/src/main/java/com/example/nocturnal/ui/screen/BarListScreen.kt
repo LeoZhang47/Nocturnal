@@ -1,8 +1,10 @@
 package com.example.nocturnal.ui.screen
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nocturnal.R
@@ -33,13 +35,14 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun BarListView(navController: NavHostController, viewModel: BarListViewModel) {
+fun BarListView(navController: NavHostController, viewModel: BarListViewModel, context: Context) {
 
     val isLoading by viewModel.isLoading.collectAsState()
     val bars by viewModel.bars.collectAsState()
     val currentDate = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_formatter))
     val formattedDate = currentDate.format(formatter)
+    val noLocation = stringResource(R.string.no_location)
 
     Column(
         modifier = Modifier
@@ -54,6 +57,22 @@ fun BarListView(navController: NavHostController, viewModel: BarListViewModel) {
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(144.dp)
+                )
+            }
+        } else if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center // Centers the content inside the Box
+            ) {
+                Text(
+                    text = noLocation,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
         } else {
