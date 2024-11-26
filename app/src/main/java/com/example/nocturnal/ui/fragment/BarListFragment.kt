@@ -23,6 +23,8 @@ class BarListFragment : Fragment() {
     ): View? {
         setHasOptionsMenu(true) // Enables the options menu
 
+        viewModel.startLocationUpdates()
+
         val view = inflater.inflate(R.layout.fragment_bar_list, container, false)
         view.findViewById<ComposeView>(R.id.composable_container).setContent {
             val navController = rememberNavController()

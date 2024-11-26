@@ -40,11 +40,7 @@ class BarListViewModel(
 
     var lastLocation: Point? = null
 
-    init {
-        startLocationUpdates()  // Start location updates when ViewModel is created
-    }
-
-    private fun startLocationUpdates() {
+    fun startLocationUpdates() {
         locationService.startLocationUpdates()
 
         // Observe location updates from LocationService (only once)
