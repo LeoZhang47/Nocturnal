@@ -160,7 +160,7 @@ class CameraTest {
 //    }
 
     @Test
-    fun postToEthyl() {
+    fun checkImageFragment() {
         onView(withId(R.id.picture_button)).perform(click())
 
 
