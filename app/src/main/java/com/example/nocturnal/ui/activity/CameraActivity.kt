@@ -24,6 +24,7 @@ import java.util.Date
 import com.example.nocturnal.ui.fragment.ImagePreviewFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.graphics.Color
+import android.util.Log
 import com.example.nocturnal.data.model.viewmodel.CameraViewModel
 import androidx.activity.viewModels
 import android.view.GestureDetector
@@ -225,6 +226,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun showImageFragment(uri: Uri) {
+        Log.d("showImageFragment", "Image preview fragment: $uri")
         val imagePreviewFragment = ImagePreviewFragment.newInstance(uri.toString())
         imagePreviewFragment.show(supportFragmentManager, "ImagePreviewFragment")
     }

@@ -20,6 +20,10 @@ navigationComposeVersion = "2.8.3"
 navigationRuntimeKtx = "2.8.3"
 firebaseFirestoreKtx = "25.1.0"
 espressoCoreVersion = "3.0.2"
+rules = "1.6.1"
+mockitoCore = "5.14.2"
+mockitoAndroid = "5.14.2"
+espressoIntents = "3.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +52,10 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 espresso-core = { group = "com.android.support.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
+mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockitoAndroid" }
+androidx-espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
