@@ -26,7 +26,7 @@ class BarListViewModel(
     val locationService: LocationService
 ) : ViewModel() {
 
-    private val _bars = MutableStateFlow<List<Bar>>(emptyList())
+    val _bars = MutableStateFlow<List<Bar>>(emptyList())
     val bars: StateFlow<List<Bar>> = _bars
 
     private val _nearestBar = MutableLiveData<Bar?>()
@@ -38,7 +38,7 @@ class BarListViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private var lastLocation: Point? = null
+    var lastLocation: Point? = null
 
     init {
         startLocationUpdates()  // Start location updates when ViewModel is created
@@ -107,6 +107,7 @@ class BarListViewModel(
     fun fetchPosts() {
         viewModelScope.launch {
             _isLoading.value = true
+            _posts.value = emptyList()
             repository.getPosts().collect { post ->
                 _posts.value += post
                 _isLoading.value = false

@@ -8,6 +8,7 @@ import com.example.nocturnal.util.distanceTo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,7 @@ class FirestoreRepository {
 
     fun getPosts(): Flow<Post> = callbackFlow {
         val db = FirebaseFirestore.getInstance()
-        val postsCollection = db.collection("posts")
+        val postsCollection = db.collection("posts").orderBy("timestamp", Query.Direction.ASCENDING)
 
         val listener = postsCollection.addSnapshotListener { snapshot, exception ->
             if (exception != null) {
