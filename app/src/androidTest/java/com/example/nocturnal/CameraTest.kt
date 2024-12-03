@@ -163,9 +163,8 @@ class CameraTest {
     fun checkImageFragment() {
         onView(withId(R.id.picture_button)).perform(click())
 
-
-        Thread.sleep(1000)
         onView(withId(R.id.post_button)).check(matches(isDisplayed()))
+        onView(withId(R.id.cancel_button)).check(matches(isDisplayed()))
     }
 
 }
