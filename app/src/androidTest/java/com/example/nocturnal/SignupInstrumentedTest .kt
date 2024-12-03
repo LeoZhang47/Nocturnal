@@ -46,6 +46,7 @@ class SignupInstrumentedTest {
         onView(withId(R.id.register)).perform(click())
 
         // Verify navigation to CameraActivity by checking toolbar visibility
+        Thread.sleep(2000) // Wait for 2 seconds
         onView(withId(R.id.picture_button))
             .check(matches(isDisplayed()))
     }

@@ -37,6 +37,7 @@ class LoginInstrumentedTest {
         onView(withId(R.id.login)).perform(click())
 
         // Verify navigation to CameraActivity by "Take a Picture" buttons visibility
+        Thread.sleep(2000) // Wait for 2 seconds
         onView(withId(R.id.picture_button))
             .check(matches(isDisplayed()))
     }
